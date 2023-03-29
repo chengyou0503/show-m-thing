@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Todo List 待辦清單</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 32px;
+      margin: 0 0 20px 0;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 70%;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px 0 0 0;
+    }
+
+    li {
+      font-size: 18px;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    li:hover {
+      background-color: #e4e3e3;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: #999;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>Todo List</h1>
+
+    <input type="text" id="todoInput" placeholder="Add a new todo">
+
+    <button id="addBtn">Add</button>
+
+    <ul class="todoList">
+    </ul>
+
+
+  </div>
+
+  <script>
+
+    document.querySelector('#addBtn').addEventListener('click',a)
+    let arr = []
+    function a (){
+        arr.push(document.querySelector('#todoInput').value)
+        document.querySelector('#todoInput').value = ''
+        let str = ''
+        for(let i = 0 ; i < arr.length; i++){
+            str = str + '<li>' + arr[i] + '</li>'
+        }
+        document.querySelector('.todoList').innerHTML = str
+    }
+
+
+
+
+    // document.querySelector('#addBtn').addEventListener('click',a)
+    // function a (){
+    //     alert('哈囉你')
+    // }
+
+
+    // let arr = ['吃飯', '睡覺', '洗澡', '寫作業']
+    // let str = ''
+    // for(let i = 0;i<arr.length;i++){
+    //     str = str + '<li>' + arr[i] + '</li>' 
+    // }
+    // document.querySelector('.todoList').innerHTML = str
+        
+
+    // document.querySelector('#addBtn').addEventListener('click',a)
+    // let arr = []
+    // function a (){
+    //     arr.push(document.querySelector('#todoInput').value)
+    //     document.querySelector('#todoInput').value = ''
+    //     let str = ''
+    //     for(let i = 0; i < arr.length;i++){
+    //         str = str + '<li>' + arr[i] + '</li>'
+    //     }
+    //     document.querySelector('.todoList').innerHTML = str
+    // }
+
+        
+
+    // 1. 選取 html 元素 方法是: document.querySelector('') -> 今天要選取 id '' 裡面的內容 
+    //  id => todoInput    document.querySelector('#todoInput')
+    // class => todoList   document.querySelector('.todoList')
+    //  document.querySelector('#addBtn')
+
+
+    // 2. 監聽事件 click 點擊事件
+    //  今天如果我需要對一個標籤 做監聽點擊事件
+    //  a. 用的方法是 => 先選到標籤 document.querySelector('#addBtn')
+    //  b. 對標籤做監聽 => document.querySelector('#addBtn').addEventListener('click', a)
+    // document.querySelector('.todoList').addEventListener('click', function)
+
+    // 3. 撰寫事件的 function 
+    /* 
+    function a () {
+      alert('點擊了這個按鈕')
+    } 
+    */
+    
+
+
+
+
+    
+  </script>
+</body>
+
+</html>
