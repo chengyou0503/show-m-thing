@@ -123,7 +123,6 @@
   </div>
 
   <script>
-    // JavaScript程式碼保持不變
     function calculateMonthlyPayment() {
       const loanAmount = parseFloat(document.getElementById('loanAmount').value);
       const loanTerm = parseInt(document.getElementById('loanTerm').value);
@@ -154,23 +153,28 @@
                                       <th>期數</th>
                                       <th>本金</th>
                                       <th>利息</th>
-                                      <th>本息合計</th>
+                                      <th>月付款</th>
                                       <th>剩餘本金</th>
                                     </tr>
                                   </thead>
                                   <tbody>`;
 
       for (let i = 1; i <= loanTerm; i++) {
-        const interest = balance * monthlyInterestRate;
-        const principal = monthlyPayment - interest;
+        const interest = Math.round(balance * (monthlyInterestRate / 100));
+        let principal = monthlyPayment - interest;
+        let payment = monthlyPayment;
+        if (i === loanTerm) { // 調整最後一個月的本金和月付款
+          principal = balance;
+          payment = principal + interest;
+        }
         balance -= principal;
 
         amortizationTable += `<tr>
                                 <td>${i}</td>
                                 <td>${principal.toLocaleString()}</td>
                                 <td>${interest.toLocaleString()}</td>
-                                <td>${monthlyPayment.toLocaleString()}</td>
-                                <td>${balance.toLocaleString()}</td>
+                                <td>${payment.toLocaleString()}</td>
+                                <td>${balance > 0 ? balance.toLocaleString() : 0}</td>
                               </tr>`;
       }
 
