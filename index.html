@@ -1,186 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-  <title>車貸利率試算</title>
-  <!-- 引入Bootstrap CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <style>
-    /* 自訂樣式 */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
-      margin: 0;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利率試算</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+      .content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+}
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: #f7f7f7;
+            display: flex;
+        }
+        .sidebar {
+            width: 250px; /* 統一側邊欄寬度 */
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 12px 0;
+            font-size: 18px;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .sidebar h3 {
+    font-size: 36px; /* 統一大小 */
+    margin-bottom: 10px; /* 讓間距一致 */
+}
 
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    #carLoanForm {
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 16px;
-      color: #555;
-    }
-
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 16px;
-    }
-
-    input[type="button"] {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      background-color: #ff6b6b; /* 活潑的紅色 */
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-      font-size: 16px;
-    }
-
-    input[type="button"]:hover {
-      background-color: #ff4f4f; /* 活潑的淺紅色 */
-    }
-
-    #result {
-      margin-top: 30px;
-      font-size: 18px;
-      text-align: center;
-      color: #333;
-    }
-
-    #amortizationTable {
-      margin-top: 30px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    #amortizationTable th,
-    #amortizationTable td {
-      padding: 8px;
-      text-align: center;
-    }
-
-    #amortizationTable th {
-      background-color: #007bff; /* 活潑的藍色 */
-      color: #fff;
-    }
-
-    #amortizationTable tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-  </style>
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 40px;
+        }
+        #carLoanForm {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        input[type="button"] {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #ff6b6b;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        input[type="button"]:hover {
+            background-color: #ff4f4f;
+        }
+        #result {
+            margin-top: 30px;
+            font-size: 20px;
+            text-align: center;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-  <h1>車貸利率試算程式</h1>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <form id="carLoanForm">
-          <div class="mb-3">
-            <label for="loanAmount" class="form-label">車貸本金（車子價格）：</label>
-            <input type="number" id="loanAmount" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="loanTerm" class="form-label">貸款期限（月）：</label>
-            <input type="number" id="loanTerm" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="annualInterestRate" class="form-label">年利率（例如5.5代表5.5%）：</label>
-            <input type="number" id="annualInterestRate" step="0.01" class="form-control" required>
-          </div>
-          <input type="button" value="計算" class="btn btn-danger" onclick="calculateMonthlyPayment()"> <!-- 活潑的紅色按鈕 -->
-        </form>
-      </div>
+    <div class="sidebar">
+        <h3>選單</h3>
+        <a href="index.html">首頁</a>
+        <a href="index1.html">通時通數計算器</a>
+        <a href="index2.html">其他功能</a>
     </div>
-  </div>
+    <div class="content">
+        <h1>利率試算程式</h1>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <form id="carLoanForm">
+                        <div class="mb-3">
+                            <label for="loanAmount" class="form-label">本金：</label>
+                            <input type="number" id="loanAmount" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loanTerm" class="form-label">貸款期限（月）：</label>
+                            <input type="number" id="loanTerm" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="annualInterestRate" class="form-label">年利率：</label>
+                            <input type="number" id="annualInterestRate" step="0.01" class="form-control" required>
+                        </div>
+                        <input type="button" value="計算" class="btn btn-danger" onclick="calculateMonthlyPayment()">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="result"></div>
+    </div>
 
-  <div id="result">
-    <!-- 這裡會顯示計算結果 -->
-  </div>
-
-  <div id="amortizationTable">
-    <!-- 這裡會顯示本息攤還表格 -->
-  </div>
-
-  <script>
-    function calculateMonthlyPayment() {
-      const loanAmount = parseFloat(document.getElementById('loanAmount').value);
-      const loanTerm = parseInt(document.getElementById('loanTerm').value);
-      const annualInterestRate = parseFloat(document.getElementById('annualInterestRate').value);
-
-      const monthlyInterestRate = annualInterestRate / 12;
-      const monthlyPayment = calculateCarLoan(monthlyInterestRate, loanAmount, loanTerm);
-
-      document.getElementById('result').innerHTML = `每月應還款金額：${monthlyPayment.toLocaleString()} 元`;
-
-      // 產生本息攤還表格
-      generateAmortizationTable(monthlyInterestRate, loanAmount, loanTerm, monthlyPayment);
-    }
-
-    function calculateCarLoan(monthlyInterestRate, loanAmount, loanTerm) {
-      monthlyInterestRate = monthlyInterestRate / 100;
-      const monthlyPayment = (loanAmount * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -loanTerm));
-      return Math.round(monthlyPayment);
-    }
-
-    function generateAmortizationTable(monthlyInterestRate, loanAmount, loanTerm, monthlyPayment) {
-      const tableDiv = document.getElementById('amortizationTable');
-
-      let balance = loanAmount;
-      let amortizationTable = `<table class="table table-bordered">
-                                  <thead>
-                                    <tr>
-                                      <th>期數</th>
-                                      <th>本金</th>
-                                      <th>利息</th>
-                                      <th>月付款</th>
-                                      <th>剩餘本金</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>`;
-
-      for (let i = 1; i <= loanTerm; i++) {
-        const interest = Math.round(balance * (monthlyInterestRate / 100));
-        let principal = monthlyPayment - interest;
-        let payment = monthlyPayment;
-        if (i === loanTerm) { // 調整最後一個月的本金和月付款
-          principal = balance;
-          payment = principal + interest;
+    <script>
+        function calculateMonthlyPayment() {
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            const loanTerm = parseInt(document.getElementById('loanTerm').value);
+            const annualInterestRate = parseFloat(document.getElementById('annualInterestRate').value);
+            const monthlyInterestRate = (annualInterestRate / 100) / 12;
+            const monthlyPayment = calculateCarLoan(monthlyInterestRate, loanAmount, loanTerm);
+            document.getElementById('result').innerHTML = `每月應還款金額：${monthlyPayment.toLocaleString()} 元`;
         }
-        balance -= principal;
-
-        amortizationTable += `<tr>
-                                <td>${i}</td>
-                                <td>${principal.toLocaleString()}</td>
-                                <td>${interest.toLocaleString()}</td>
-                                <td>${payment.toLocaleString()}</td>
-                                <td>${balance > 0 ? balance.toLocaleString() : 0}</td>
-                              </tr>`;
-      }
-
-      amortizationTable += `</tbody></table>`;
-      tableDiv.innerHTML = amortizationTable;
-    }
-  </script>
+        function calculateCarLoan(monthlyInterestRate, loanAmount, loanTerm) {
+            monthlyInterestRate = monthlyInterestRate / 100;
+            const monthlyPayment = (loanAmount * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -loanTerm));
+            return Math.round(monthlyPayment);
+        }
+    </script>
 </body>
 </html>
