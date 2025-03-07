@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>存款積數計算</title>
+  <style>
+    body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    background-color: #f7f7f7;
+    display: flex;
+}
+.sidebar {
+    width: 250px;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+}
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 12px 0;
+    font-size: 18px;
+}
+.sidebar a:hover {
+    background-color: #575757;
+}
+.sidebar h3 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+.container {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+}
+
+    .container {
+      width: 90%;
+      max-width: 1100px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin: auto;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .content {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    table {
+      width: 65%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+      font-size: 16px;
+    }
+    th {
+      background: #007BFF;
+      color: white;
+      font-size: 18px;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    input {
+      width: 90%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      text-align: center;
+      transition: 0.2s;
+    }
+    input:focus {
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      outline: none;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      background: #007BFF;
+      color: white;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+      transform: scale(1.05);
+    }
+    .deleteRow {
+      background: #dc3545;
+    }
+    .deleteRow:hover {
+      background: #a71d2a;
+    }
+    .side-panel {
+      width: 30%;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      text-align: left;
+    }
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column;
+      }
+      table, .side-panel {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+    <h3>選單</h3>
+    <a href="index.html">利率計算</a>
+    <a href="index1.html">通時通數計算器</a>
+    <a href="index2.html">結清金額試算</a>
+    <a href="index3.html">存款積數</a>
+</div>
+
+  <div class="container">
+    <h1>存款積數計算</h1>
+    <div class="content">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>最終金額</th>
+            <th>存放天數</th>
+            <th>存款積數</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" class="date" placeholder="YYY/MM/DD"></td>
+            <td><input type="number" class="amount" placeholder="輸入金額"></td>
+            <td class="stored-days"></td>
+            <td class="deposit-total">0</td>
+            <td><button class="deleteRow">刪除</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="side-panel">
+        <h3>總計</h3>
+        <p>6個月總存款天數: <span id="total-days">0</span></p>
+        <p>績數: <span id="total-score">0</span></p>
+        <p>平均餘額: <span id="average-balance">0</span></p>
+      </div>
+    </div>
+    <button id="addRow">➕ 新增一列</button>
+  </div>
+  <script>
+   // 將民國日期轉換為西元日期（YYY/MM/DD -> YYYY-MM-DD）
+function convertToGregorian(twDate) {
+  let match = twDate.match(/^(\d{2,3})\/(\d{1,2})\/(\d{1,2})$/);
+  if (!match) return ""; // 格式錯誤則返回空字串
+
+  let [_, year, month, day] = match;
+  let gregorianYear = parseInt(year, 10) + 1911; // 民國轉西元
+  return `${gregorianYear}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+// 計算存放天數（當輸入「下一筆日期」時自動更新）
+function computeStoredDays(currentDateStr, nextDateStr) {
+  if (!nextDateStr) return ""; // 如果沒有輸入下一筆日期，存放天數為空白
+
+  let currDate = new Date(convertToGregorian(currentDateStr));
+  let nextDate = new Date(convertToGregorian(nextDateStr));
+
+  if (isNaN(currDate) || isNaN(nextDate)) {
+    return ""; // 避免無效日期導致錯誤
+  }
+
+  let diffTime = nextDate - currDate;
+  let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays > 0 ? diffDays : 0; // 若天數 <= 0 則顯示 0
+}
+
+// 千分位格式化
+function formatNumber(n) {
+  return Number(n).toLocaleString();
+}
+
+// 重新計算所有行與總計
+function recalc() {
+  let rows = document.querySelectorAll("#dataTable tbody tr");
+  let totalDays = 0;   // 6 個月總存款天數（從第二筆開始累計）
+  let totalScore = 0;  // 績數總計（從第二筆開始累計）
+
+  rows.forEach((row, index) => {
+    let dateInput = row.querySelector(".date");
+    let amountInput = row.querySelector(".amount");
+    let dateValue = dateInput.value.trim();
+    let amountVal = parseFloat(amountInput.value) || 0;
+    let storedDays = "";
+
+    // 取得下一行的日期（如果沒有則不計算存放天數）
+    let nextRowDate = index < rows.length - 1
+      ? rows[index + 1].querySelector(".date").value.trim()
+      : "";
+
+    // 計算存放天數（只有當下一筆日期存在時才計算）
+    if (dateValue && nextRowDate) {
+      storedDays = computeStoredDays(dateValue, nextRowDate);
+    }
+
+    // 計算存款積數（存款金額 × 存放天數）
+    let depositScore = storedDays !== "" ? amountVal * storedDays : 0;
+
+    // 更新表格顯示
+    row.querySelector(".stored-days").textContent = storedDays !== "" ? formatNumber(storedDays) : "";
+    row.querySelector(".deposit-total").textContent = formatNumber(depositScore);
+
+    // **總計計算（從第二筆開始計算）**
+    if (index > 0 && storedDays !== "" && storedDays > 0) {
+      totalDays += storedDays;
+      totalScore += depositScore;
+    }
+  });
+
+  document.getElementById("total-days").textContent = formatNumber(totalDays);  // 6 個月總存款天數
+  document.getElementById("total-score").textContent = formatNumber(totalScore); // 績數總計
+  let avgBalance = totalDays > 0 ? Math.round(totalScore / totalDays) : 0;
+  document.getElementById("average-balance").textContent = formatNumber(avgBalance);
+}
+
+// 監聽輸入事件（確保存放天數可自動更新）
+document.querySelector("#dataTable tbody").addEventListener("input", function (event) {
+  if (event.target.classList.contains("date") || event.target.classList.contains("amount")) {
+    recalc();
+  }
+});
+
+// **新增一列（確保新增的行能夠正確計算）**
+document.getElementById("addRow").addEventListener("click", function () {
+  let tableBody = document.querySelector("#dataTable tbody");
+  let newRow = document.createElement("tr");
+
+  newRow.innerHTML = `
+    <td><input type="text" class="date" placeholder="YYY/MM/DD"></td>
+    <td><input type="number" class="amount" placeholder="輸入金額"></td>
+    <td class="stored-days"></td>
+    <td class="deposit-total">0</td>
+    <td><button class="deleteRow">刪除</button></td>
+  `;
+
+  tableBody.appendChild(newRow);
+
+  // **確保新加入的行能觸發 `recalc()`**
+  newRow.querySelector(".date").addEventListener("input", recalc);
+  newRow.querySelector(".amount").addEventListener("input", recalc);
+  recalc();
+});
+
+// **事件委派：刪除按鈕（修正無法刪除的問題）**
+document.querySelector("#dataTable tbody").addEventListener("click", function (event) {
+  if (event.target.classList.contains("deleteRow")) {
+    let row = event.target.closest("tr");
+    if (row) {
+      row.remove();  // **修正：確保 `closest("tr")` 找得到行**
+      recalc();      // **刪除後需要重新計算存放天數**
+    }
+  }
+});
+
+// **頁面載入後執行一次**
+document.addEventListener("DOMContentLoaded", recalc);
+  </script>
+</body>
+</html>

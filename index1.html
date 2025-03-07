@@ -17,26 +17,30 @@
       display: flex;
     }
     .sidebar {
-      width: 250px;
-      background-color: #333;
-      color: white;
-      padding: 20px;
-      height: 100vh;
-      position: fixed;
-      left: 0;
-      top: 0;
-      overflow-y: auto;
-    }
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      display: block;
-      padding: 12px 0;
-      font-size: 18px;
-    }
-    .sidebar a:hover {
-      background-color: #575757;
-    }
+    width: 250px;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+}
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 12px 0;
+    font-size: 18px;
+}
+.sidebar a:hover {
+    background-color: #575757;
+}
+.sidebar h3 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
     .content {
       margin-left: 250px;
       padding: 40px;
@@ -89,10 +93,11 @@
 <body>
   <div class="sidebar">
     <h3>選單</h3>
-    <a href="index.html">首頁</a>
+    <a href="index.html">利率計算</a>
     <a href="index1.html">通時通數計算器</a>
-    <a href="#">其他功能</a>
-  </div>
+    <a href="index2.html">結清金額試算</a>
+    <a href="index3.html">存款積數</a>
+</div>
   <div class="content">
     <h2>通時通數計算器</h2>
     <div id="output" class="table-container">

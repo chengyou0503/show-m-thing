@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>汽車貸款分析</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .left-section, .right-section {
+      width: 50%;
+      padding: 20px;
+    }
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    input {
+      padding: 8px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 5px;
+      border: none;
+      text-align: center; /* 輸入框內文字置中 */
+    }
+    h2 {
+      margin-bottom: 10px;
+      font-size: 36px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-section">
+      <h2>汽車貸款分析 (本息平均攤還表)</h2>
+      <label>貸款金額: <input type="number" id="loanAmount" placeholder="請輸入貸款金額"></label>
+      <label>每期償還: <input type="number" id="monthlyPayment" placeholder="請輸入月付款"></label>
+      <label>貸款期數: <input type="number" id="loanTerm" placeholder="請輸入貸款期數"></label>
+      <label>貸款日期: <input type="date" id="loanDate"></label>
+      <label>貸款利率: <input type="number" step="0.000001" id="interestRate" placeholder="自動計算" readonly>%</label>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>期數</th>
+              <th>日期</th>
+              <th>剩餘本金</th>
+              <th>應繳本金</th>
+              <th>應繳利息</th>
+              <th>累計償還本金</th>
+              <th>累計償還利息</th>
+            </tr>
+          </thead>
+          <tbody id="loanTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <h2>結清金額試算</h2>
+      <table>
+        <tr>
+          <th>一次約</th>
+          <th>月付款</th>
+          <th>已繳期數</th>
+          <th>結果</th>
+        </tr>
+        <tr>
+          <td>裕富 21世紀</td>
+          <td>$<span id="paymentYufu">0</span></td>
+          <td><input type="number" id="paidPeriodsYufu" value="0"></td>
+          <td id="resultYufu">$0</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // 格式化數字為貨幣格式，如 "$518,969 元"
+    function formatCurrency(num) {
+      return "$" + Number(num).toLocaleString() + " 元";
+    }
+
+    // 利用二分搜尋法計算月利率
+    // 公式：monthlyPayment = loanAmount * (r*(1+r)^loanTerm) / ((1+r)^loanTerm - 1)
+    function computeMonthlyInterestRate(loanAmount, monthlyPayment, loanTerm) {
+      const epsilon = 1e-10;
+      let low = 0;
+      let high = 1; // 假設月利率不超過100%
+      let r = 0;
+      for (let i = 0; i < 100; i++) {
+        r = (low + high) / 2;
+        let calcPayment;
+        if (r === 0) {
+          calcPayment = loanAmount / loanTerm;
+        } else {
+          calcPayment = loanAmount * (r * Math.pow(1 + r, loanTerm)) / (Math.pow(1 + r, loanTerm) - 1);
+        }
+        if (Math.abs(calcPayment - monthlyPayment) < epsilon) {
+          break;
+        }
+        if (calcPayment > monthlyPayment) {
+          high = r;
+        } else {
+          low = r;
+        }
+      }
+      return r;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("loanDate").value = new Date().toISOString().split('T')[0];
+
+      document.querySelectorAll("#loanAmount, #monthlyPayment, #loanTerm, #loanDate").forEach(input => {
+        input.addEventListener("input", generateLoanSchedule);
+      });
+      document.getElementById("paidPeriodsYufu").addEventListener("input", updateResult);
+    });
+
+    function generateLoanSchedule() {
+      const loanAmount = parseFloat(document.getElementById("loanAmount").value) || 0;
+      const monthlyPayment = parseFloat(document.getElementById("monthlyPayment").value) || 0;
+      const loanTerm = parseInt(document.getElementById("loanTerm").value) || 0;
+      const loanDate = document.getElementById("loanDate").value;
+
+      // 若輸入數值不足則清空表格並返回
+      if (loanAmount <= 0 || monthlyPayment <= 0 || loanTerm <= 0) {
+        document.getElementById("loanTableBody").innerHTML = "";
+        document.getElementById("interestRate").value = "";
+        document.getElementById("paymentYufu").textContent = "0";
+        updateResult();
+        return;
+      }
+
+      // 利用二分法計算月利率，再換算成年利率，僅保留小數點後兩位
+      const monthlyInterestRate = computeMonthlyInterestRate(loanAmount, monthlyPayment, loanTerm);
+      const annualInterestRate = monthlyInterestRate * 12 * 100;
+      document.getElementById("interestRate").value = annualInterestRate.toFixed(2);
+
+      // 更新右側月付款顯示
+      document.getElementById("paymentYufu").textContent = formatCurrency(monthlyPayment);
+
+      const tableBody = document.getElementById("loanTableBody");
+      tableBody.innerHTML = "";
+      let remainingPrincipal = loanAmount;
+      let totalPaidPrincipal = 0;
+      let totalPaidInterest = 0;
+      let date = new Date(loanDate);
+
+      // 產生每期攤還表
+      for (let i = 1; i <= loanTerm; i++) {
+        const ep = remainingPrincipal * monthlyInterestRate;
+        const principal = monthlyPayment - ep;
+        totalPaidPrincipal += principal;
+        totalPaidInterest += ep;
+        remainingPrincipal -= principal;
+
+        let newRow = `<tr>
+            <td>${i}</td>
+            <td>${date.toISOString().split('T')[0]}</td>
+            <td class="remaining-principal">${formatCurrency(Number(remainingPrincipal.toFixed(0)))}</td>
+            <td>${formatCurrency(Number(principal.toFixed(0)))}</td>
+            <td>${formatCurrency(Number(ep.toFixed(0)))}</td>
+            <td>${formatCurrency(Number(totalPaidPrincipal.toFixed(0)))}</td>
+            <td>${formatCurrency(Number(totalPaidInterest.toFixed(0)))}</td>
+        </tr>`;
+        tableBody.innerHTML += newRow;
+        date.setMonth(date.getMonth() + 1);
+      }
+      updateResult();
+    }
+
+    function updateResult() {
+      // 取得右側顯示的月付款數值（格式化字串轉換成數值）
+      const monthlyPaymentStr = document.getElementById("paymentYufu").textContent;
+      const monthlyPayment = parseFloat(monthlyPaymentStr.replace(/[\$, 元]/g, "")) || 0;
+      const loanTerm = parseInt(document.getElementById("loanTerm").value) || 0;
+      let paidPeriods = parseInt(document.getElementById("paidPeriodsYufu").value) || 0;
+
+      if (paidPeriods > loanTerm) {
+        paidPeriods = loanTerm;
+        document.getElementById("paidPeriodsYufu").value = loanTerm;
+      }
+      
+      // 結果 = 月付款 * (貸款期數 - 已繳期數)
+      const result = monthlyPayment * (loanTerm - paidPeriods);
+      document.getElementById("resultYufu").textContent = formatCurrency(result.toFixed(0));
+    }
+  </script>
+</body>
+</html>
