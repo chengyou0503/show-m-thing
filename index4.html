@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 表單嵌入範例</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* 隱藏 body 的滾動條 */
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh; /* 讓表單根據視窗高度縮放 */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* 避免 iframe 外部滾動 */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+        .sidebar {
+    width: 250px;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+}
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 12px 0;
+    font-size: 18px;
+}
+.sidebar a:hover {
+    background-color: #575757;
+}
+.sidebar h3 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>選單</h3>
+        <a href="index.html">利率計算</a>
+        <a href="index1.html">通時通數計算器</a>
+        <a href="index2.html">結清金額試算</a>
+        <a href="index3.html">存款積數</a>
+    </div>
+    <h2>請填寫以下表單</h2>
+
+    <div class="form-container">
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScOHAbEyvl2tjUONXxSOY46VttZ9i3DXA20lkeSgMrII0WpDA/viewform?embedded=true" allowfullscreen>
+            載入中…
+        </iframe>
+    </div>
+
+</body>
+</html>
