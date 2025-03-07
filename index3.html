@@ -5,148 +5,150 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>存款積數計算</title>
   <style>
-    body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    background-color: #f7f7f7;
-    display: flex;
-}
-.sidebar {
-    width: 250px;
-    background-color: #333;
-    color: white;
-    padding: 20px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    overflow-y: auto;
-}
-.sidebar a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 12px 0;
-    font-size: 18px;
-}
-.sidebar a:hover {
-    background-color: #575757;
-}
-.sidebar h3 {
-    font-size: 36px;
-    margin-bottom: 10px;
-}
-.container {
-    margin-left: 250px;
-    width: calc(100% - 250px);
-}
+    /* 確保所有元素的 box-sizing 設定為 border-box，避免 margin/padding 影響寬度計算 */
+    * {
+        box-sizing: border-box;
+    }
 
+    /* 全局樣式 */
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        background-color: #f7f7f7;
+        display: flex; /* 讓內容和側邊欄可以並排 */
+    }
+
+    /* 側邊欄 */
+    .sidebar {
+        width: 250px;
+        background-color: #333;
+        color: white;
+        padding: 20px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
+    }
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        display: block;
+        padding: 12px 0;
+        font-size: 18px;
+    }
+    .sidebar a:hover {
+        background-color: #575757;
+    }
+    .sidebar h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    /* 主要內容區 */
     .container {
-      width: 90%;
-      max-width: 1100px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      margin: auto;
+        margin-left: 250px; /* 確保內容不會被側邊欄擋住 */
+        width: calc(100% - 250px); /* 讓內容填滿剩餘空間 */
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        min-height: 100vh;
+        overflow-x: auto; /* 確保內容不會被截斷 */
     }
-    h1 {
-      font-size: 26px;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 20px;
-    }
+
+    /* 內容區塊 */
     .content {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
     }
+
+    /* 表格 */
     table {
-      width: 65%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 65%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: center;
-      font-size: 16px;
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: center;
+        font-size: 16px;
     }
     th {
-      background: #007BFF;
-      color: white;
-      font-size: 18px;
+        background: #007BFF;
+        color: white;
+        font-size: 18px;
     }
     tr:nth-child(even) {
-      background-color: #f9f9f9;
+        background-color: #f9f9f9;
     }
     tr:hover {
-      background-color: #f1f1f1;
+        background-color: #f1f1f1;
     }
+
+    /* 輸入框 */
     input {
-      width: 90%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-      text-align: center;
-      transition: 0.2s;
+        width: 90%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        text-align: center;
+        transition: 0.2s;
     }
     input:focus {
-      border-color: #007BFF;
-      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-      outline: none;
+        border-color: #007BFF;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
     }
+
+    /* 按鈕 */
     button {
-      padding: 10px 15px;
-      margin: 5px;
-      border: none;
-      background: #007BFF;
-      color: white;
-      cursor: pointer;
-      border-radius: 6px;
-      font-size: 16px;
-      transition: all 0.3s;
+        padding: 10px 15px;
+        margin: 5px;
+        border: none;
+        background: #007BFF;
+        color: white;
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: all 0.3s;
     }
     button:hover {
-      background: #0056b3;
-      transform: scale(1.05);
+        background: #0056b3;
+        transform: scale(1.05);
     }
     .deleteRow {
-      background: #dc3545;
+        background: #dc3545;
     }
     .deleteRow:hover {
-      background: #a71d2a;
+        background: #a71d2a;
     }
+
+    /* 總計區 */
     .side-panel {
-      width: 30%;
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-      text-align: left;
-    }
-    @media (max-width: 768px) {
-      .content {
-        flex-direction: column;
-      }
-      table, .side-panel {
-        width: 100%;
-      }
+        width: 30%;
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        text-align: left;
     }
   </style>
 </head>
 <body>
-<div class="sidebar">
+  <div class="sidebar">
     <h3>選單</h3>
     <a href="index.html">利率計算</a>
     <a href="index1.html">通時通數計算器</a>
     <a href="index2.html">結清金額試算</a>
     <a href="index3.html">存款積數</a>
-</div>
+  </div>
 
   <div class="container">
     <h1>存款積數計算</h1>
