@@ -29,6 +29,7 @@
       width: 100%;
       border-collapse: collapse;
       background: white;
+      margin-bottom: 20px;
     }
     th, td {
       padding: 10px;
@@ -38,7 +39,6 @@
     th {
       background-color: #007BFF;
       color: white;
-      text-align: center;
     }
     label {
       display: block;
@@ -52,16 +52,22 @@
       max-width: 400px;
       margin-top: 5px;
       border: none;
-      text-align: center; /* 輸入框內文字置中 */
+      text-align: center;
     }
     h2 {
       margin-bottom: 10px;
       font-size: 36px;
     }
+    h3 {
+      margin-top: 30px;
+      font-size: 24px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- 左側區塊：汽車貸款攤還表 -->
     <div class="left-section">
       <h2>汽車貸款分析 (本息平均攤還表)</h2>
       <label>貸款金額: <input type="number" id="loanAmount" placeholder="請輸入貸款金額"></label>
@@ -87,8 +93,10 @@
       </div>
     </div>
 
+    <!-- 右側區塊：結清金額試算與額外試算表 -->
     <div class="right-section">
       <h2>結清金額試算</h2>
+      <!-- 原有試算表 -->
       <table>
         <tr>
           <th>一次約</th>
@@ -98,27 +106,71 @@
         </tr>
         <tr>
           <td>裕富 21世紀</td>
-          <td>$<span id="paymentYufu">0</span></td>
+          <td><span id="paymentYufu">0</span></td>
           <td><input type="number" id="paidPeriodsYufu" value="0"></td>
           <td id="resultYufu">$0</td>
         </tr>
+      </table>
+
+      <!-- 額外試算 - 一次約 -->
+      <table id="extraTableOnce">
+        <thead>
+          <tr>
+            <th>一次約</th>
+            <th>月付款</th>
+            <th>已繳期數</th>
+            <th>當期剩餘本金</th>
+            <th>結果</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>和潤 中租 裕融</td>
+            <td id="extraMonthlyPaymentOnce">0</td>
+            <td>
+              <input type="number" id="paidPeriodsOnceExtra" value="0">
+            </td>
+            <td id="extraCurrentBalanceOnce">0</td>
+            <td id="extraResultOnce">0</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 額外試算 - 二次約 -->
+      <table id="extraTableTwice">
+        <thead>
+          <tr>
+            <th>二次約</th>
+            <th>月付款</th>
+            <th>已繳期數</th>
+            <th>20期剩餘本金</th>
+            <th id="resultHeaderTwice">結果(未滿20期)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>和潤 中租 裕融</td>
+            <td id="extraMonthlyPaymentTwice">0</td>
+            <!-- 此欄位改為直接顯示 paidPeriodsOnceExtra 的值 -->
+            <td id="sharedPaidPeriodsExtra">0</td>
+            <td id="extraCurrentBalanceTwice">0</td>
+            <td id="extraResultTwice">0</td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // 格式化數字為貨幣格式，如 "$518,969 元"
+    // 格式化數字為貨幣格式
     function formatCurrency(num) {
       return "$" + Number(num).toLocaleString() + " 元";
     }
 
     // 利用二分搜尋法計算月利率
-    // 公式：monthlyPayment = loanAmount * (r*(1+r)^loanTerm) / ((1+r)^loanTerm - 1)
     function computeMonthlyInterestRate(loanAmount, monthlyPayment, loanTerm) {
       const epsilon = 1e-10;
-      let low = 0;
-      let high = 1; // 假設月利率不超過100%
-      let r = 0;
+      let low = 0, high = 1, r = 0;
       for (let i = 0; i < 100; i++) {
         r = (low + high) / 2;
         let calcPayment;
@@ -127,9 +179,7 @@
         } else {
           calcPayment = loanAmount * (r * Math.pow(1 + r, loanTerm)) / (Math.pow(1 + r, loanTerm) - 1);
         }
-        if (Math.abs(calcPayment - monthlyPayment) < epsilon) {
-          break;
-        }
+        if (Math.abs(calcPayment - monthlyPayment) < epsilon) break;
         if (calcPayment > monthlyPayment) {
           high = r;
         } else {
@@ -141,11 +191,16 @@
 
     document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("loanDate").value = new Date().toISOString().split('T')[0];
-
       document.querySelectorAll("#loanAmount, #monthlyPayment, #loanTerm, #loanDate").forEach(input => {
         input.addEventListener("input", generateLoanSchedule);
       });
       document.getElementById("paidPeriodsYufu").addEventListener("input", updateResult);
+      document.getElementById("paidPeriodsOnceExtra").addEventListener("input", function() {
+        updateExtraOnce();
+        updateExtraTwice();
+        // 同步更新右側二次約顯示的「已繳期數」
+        document.getElementById("sharedPaidPeriodsExtra").textContent = this.value;
+      });
     });
 
     function generateLoanSchedule() {
@@ -154,28 +209,26 @@
       const loanTerm = parseInt(document.getElementById("loanTerm").value) || 0;
       const loanDate = document.getElementById("loanDate").value;
 
-      // 若輸入數值不足則清空表格並返回
       if (loanAmount <= 0 || monthlyPayment <= 0 || loanTerm <= 0) {
         document.getElementById("loanTableBody").innerHTML = "";
         document.getElementById("interestRate").value = "";
         document.getElementById("paymentYufu").textContent = "0";
         updateResult();
+        updateExtraOnce();
+        updateExtraTwice();
         return;
       }
 
-      // 利用二分法計算月利率，再換算成年利率，僅保留小數點後兩位
+      // 計算利率並更新顯示
       const monthlyInterestRate = computeMonthlyInterestRate(loanAmount, monthlyPayment, loanTerm);
       const annualInterestRate = monthlyInterestRate * 12 * 100;
       document.getElementById("interestRate").value = annualInterestRate.toFixed(2);
-
-      // 更新右側月付款顯示
       document.getElementById("paymentYufu").textContent = formatCurrency(monthlyPayment);
 
       const tableBody = document.getElementById("loanTableBody");
       tableBody.innerHTML = "";
       let remainingPrincipal = loanAmount;
-      let totalPaidPrincipal = 0;
-      let totalPaidInterest = 0;
+      let totalPaidPrincipal = 0, totalPaidInterest = 0;
       let date = new Date(loanDate);
 
       // 產生每期攤還表
@@ -187,35 +240,90 @@
         remainingPrincipal -= principal;
 
         let newRow = `<tr>
-            <td>${i}</td>
-            <td>${date.toISOString().split('T')[0]}</td>
-            <td class="remaining-principal">${formatCurrency(Number(remainingPrincipal.toFixed(0)))}</td>
-            <td>${formatCurrency(Number(principal.toFixed(0)))}</td>
-            <td>${formatCurrency(Number(ep.toFixed(0)))}</td>
-            <td>${formatCurrency(Number(totalPaidPrincipal.toFixed(0)))}</td>
-            <td>${formatCurrency(Number(totalPaidInterest.toFixed(0)))}</td>
+          <td>${i}</td>
+          <td>${date.toISOString().split('T')[0]}</td>
+          <td class="remaining-principal">${formatCurrency(Number(remainingPrincipal.toFixed(0)))}</td>
+          <td>${formatCurrency(Number(principal.toFixed(0)))}</td>
+          <td>${formatCurrency(Number(ep.toFixed(0)))}</td>
+          <td>${formatCurrency(Number(totalPaidPrincipal.toFixed(0)))}</td>
+          <td>${formatCurrency(Number(totalPaidInterest.toFixed(0)))}</td>
         </tr>`;
         tableBody.innerHTML += newRow;
         date.setMonth(date.getMonth() + 1);
       }
       updateResult();
+      updateExtraOnce();
+      updateExtraTwice();
     }
 
     function updateResult() {
-      // 取得右側顯示的月付款數值（格式化字串轉換成數值）
+      // 原有一次約試算：無條件進位
       const monthlyPaymentStr = document.getElementById("paymentYufu").textContent;
       const monthlyPayment = parseFloat(monthlyPaymentStr.replace(/[\$, 元]/g, "")) || 0;
       const loanTerm = parseInt(document.getElementById("loanTerm").value) || 0;
       let paidPeriods = parseInt(document.getElementById("paidPeriodsYufu").value) || 0;
-
       if (paidPeriods > loanTerm) {
         paidPeriods = loanTerm;
         document.getElementById("paidPeriodsYufu").value = loanTerm;
       }
+      const result = Math.ceil(monthlyPayment * (loanTerm - paidPeriods));
+      document.getElementById("resultYufu").textContent = formatCurrency(result);
+    }
+
+    // 額外試算 - 一次約：若已繳期數 < 20，結果 = 當期剩餘本金 * 1.12，無條件進位
+    function updateExtraOnce() {
+      const paidPeriods = parseInt(document.getElementById("paidPeriodsOnceExtra").value) || 0;
+      const loanTableRows = document.getElementById("loanTableBody").rows;
+      const remainingPrincipal = parseFloat(loanTableRows[paidPeriods - 1]?.cells[2]?.innerText.replace(/[^0-9.-]+/g, "")) || 0;
+      const monthlyPaymentText = document.getElementById("paymentYufu").textContent;
+      document.getElementById("extraMonthlyPaymentOnce").textContent = monthlyPaymentText;
+      document.getElementById("extraCurrentBalanceOnce").textContent = formatCurrency(remainingPrincipal);
+      const result = paidPeriods < 20 ? remainingPrincipal * 1.12 : "無需計算";
+      if (typeof result === "number") {
+        document.getElementById("extraResultOnce").textContent = formatCurrency(Math.ceil(result));
+      } else {
+        document.getElementById("extraResultOnce").textContent = result;
+      }
+    }
+
+    // 額外試算 - 二次約：依照新公式更新
+    function updateExtraTwice() {
+      // 此處使用 paidPeriodsOnceExtra 的值作為二次約的已繳期數
+      const paidPeriods = parseInt(document.getElementById("paidPeriodsOnceExtra").value) || 0;
+      const loanTableRows = document.getElementById("loanTableBody").rows;
       
-      // 結果 = 月付款 * (貸款期數 - 已繳期數)
-      const result = monthlyPayment * (loanTerm - paidPeriods);
-      document.getElementById("resultYufu").textContent = formatCurrency(result.toFixed(0));
+      // extraCurrentBalanceTwice：取左側第20期的剩餘本金
+      let extraCurrentBalanceTwice = 0;
+      if (loanTableRows.length >= 20) {
+        extraCurrentBalanceTwice = parseFloat(loanTableRows[19].cells[2].innerText.replace(/[^0-9.-]+/g, "")) || 0;
+      }
+      document.getElementById("extraCurrentBalanceTwice").textContent = formatCurrency(extraCurrentBalanceTwice);
+      
+      const monthlyPaymentText = document.getElementById("paymentYufu").textContent;
+      document.getElementById("extraMonthlyPaymentTwice").textContent = monthlyPaymentText;
+      
+      // 同步更新共享的已繳期數顯示
+      document.getElementById("sharedPaidPeriodsExtra").textContent = paidPeriods;
+      
+      // 更新 header 結果欄位
+      const headerText = paidPeriods < 20 ? "結果(未滿20期)" : "結果(超過20期)";
+      document.getElementById("resultHeaderTwice").textContent = headerText;
+      
+      let result = 0;
+      const monthlyPayment = parseFloat(monthlyPaymentText.replace(/[\$, 元]/g, "")) || 0;
+      
+      if (paidPeriods < 20) {
+        // 公式： (extraCurrentBalanceTwice × 1.03) + (每期償還 × (20 - paidPeriods))
+        result = extraCurrentBalanceTwice * 1.03 + monthlyPayment * (20 - paidPeriods);
+      } else {
+        // 公式： (左側對應行【應繳本金】 × 1.03)
+        let correspondingPayment = 0;
+        if (loanTableRows.length >= paidPeriods && paidPeriods > 0) {
+          correspondingPayment = parseFloat(loanTableRows[paidPeriods - 1].cells[3].innerText.replace(/[^0-9.-]+/g, "")) || 0;
+        }
+        result = correspondingPayment * 1.03;
+      }
+      document.getElementById("extraResultTwice").textContent = formatCurrency(Math.ceil(result));
     }
   </script>
 </body>
