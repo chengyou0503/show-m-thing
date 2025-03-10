@@ -313,18 +313,19 @@
       const monthlyPayment = parseFloat(monthlyPaymentText.replace(/[\$, 元]/g, "")) || 0;
       
       if (paidPeriods < 20) {
-        // 公式： (extraCurrentBalanceTwice × 1.03) + (每期償還 × (20 - paidPeriods))
-        result = extraCurrentBalanceTwice * 1.03 + monthlyPayment * (20 - paidPeriods);
-      } else {
-        // 公式： (左側對應行【應繳本金】 × 1.03)
-        let correspondingPayment = 0;
-        if (loanTableRows.length >= paidPeriods && paidPeriods > 0) {
-          correspondingPayment = parseFloat(loanTableRows[paidPeriods - 1].cells[3].innerText.replace(/[^0-9.-]+/g, "")) || 0;
-        }
-        result = correspondingPayment * 1.03;
-      }
-      document.getElementById("extraResultTwice").textContent = formatCurrency(Math.ceil(result));
-    }
+  // 公式： (extraCurrentBalanceTwice × 1.03) + (每期償還 × (20 - paidPeriods))
+  result = extraCurrentBalanceTwice * 1.03 + monthlyPayment * (20 - paidPeriods);
+} else {
+  // 公式： (paidPeriodsOnceExtra對應那一期的剩餘本金 × 1.03)
+  let correspondingRemainingPrincipal = 0;
+  if (loanTableRows.length >= paidPeriods && paidPeriods > 0) {
+    correspondingRemainingPrincipal = parseFloat(loanTableRows[paidPeriods - 1].cells[2].innerText.replace(/[^0-9.-]+/g, "")) || 0;
+  }
+  result = correspondingRemainingPrincipal * 1.03;
+}
+document.getElementById("extraResultTwice").textContent = formatCurrency(Math.ceil(result));
+}
+    
   </script>
 </body>
 </html>
