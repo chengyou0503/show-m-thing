@@ -21,23 +21,37 @@
         .calc-table .item-label { font-weight: bold; }
         .calc-table input[type="number"] { width: 95%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; transition: border-color 0.3s, box-shadow 0.3s; }
         .calc-table input[type="number"]:focus { border-color: #007BFF; box-shadow: 0 0 5px rgba(0,123,255,0.25); outline: none; }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
         .calc-table .ping-result { font-weight: bold; color: #0056b3; font-size: 15px; }
-        .summary-table { margin-top: 30px; width: 100%; max-width: 500px; align-self: center; border-collapse: separate; border-spacing: 0 10px;}
-        .summary-table td { padding: 12px; font-size: 16px; border: none; }
-        .summary-table .summary-label { font-weight: bold; text-align: right; width: 50%; color: #555; }
-        .summary-table .summary-value { font-weight: bold; color: #D8000C; text-align: left; background-color: #fff8f8; padding-left: 15px; border-radius: 5px; }
-        .action-buttons { text-align: center; margin-top: 30px; }
-        .action-buttons button { padding: 12px 30px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; margin: 0 10px; transition: all 0.3s; }
-        #calculate-btn { background-color: #28a745; color: white; }
-        #calculate-btn:hover { background-color: #218838; transform: translateY(-2px); }
-        #clear-btn { background-color: #6c757d; color: white; }
-        #clear-btn:hover { background-color: #5a6268; transform: translateY(-2px); }
-        #hamburger-menu { display: none; font-size: 28px; background: none; border: none; color: #333; padding: 10px; cursor: pointer; position: fixed; top: 10px; left: 10px; z-index: 1100; }
+
+        /* --- 修改區塊 START --- */
+        .summary-table { margin-top: 30px; width: 100%; max-width: 900px; align-self: center; border-collapse: separate; border-spacing: 15px 10px;}
+        .summary-table td { padding: 12px 8px; font-size: 16px; border: none; vertical-align: middle; }
+        .summary-table .summary-label { font-weight: bold; text-align: right; width: auto; white-space: nowrap; color: #555; }
+        .summary-table .summary-value { font-weight: bold; color: #D8000C; text-align: left; background-color: #fff8f8; padding-left: 15px; border-radius: 5px; width: 100%; display: block; }
+        /* --- 修改區塊 END --- */
+
+        .add-btn { background-color: #007bff; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 20px; font-weight: bold; cursor: pointer; line-height: 28px; text-align: center; margin-right: 10px; transition: background-color 0.3s; }
+        .add-btn:hover { background-color: #0056b3; }
+        .add-row td { border-top: 2px solid #007bff !important; padding-top: 15px !important; }
+
         @media (max-width: 992px) {
             .content { margin-left: 0; width: 100%; padding: 15px; }
             #calculator-wrapper { padding: 15px; }
             .sidebar { transform: translateX(-100%); }
             #hamburger-menu { display: block; }
+            /* 在小螢幕上變回垂直排列 */
+            .summary-table { border-spacing: 0 10px; }
+            .summary-table tr, .summary-table td { display: block; width: 100%; text-align: left !important; }
+            .summary-table .summary-label { display: inline-block; width: auto; margin-bottom: 5px; }
+            .summary-table .summary-value { display: inline-block; width: auto; float: right; }
         }
     </style>
 </head>
@@ -60,25 +74,36 @@
                         <th>坪數</th>
                     </tr>
                 </thead>
-                <tbody>
-                    </tbody>
+                <tbody id="calc-table-body">
+                </tbody>
             </table>
 
             <table class="summary-table">
                 <tbody>
-                    <tr><td class="summary-label">權狀坪數：</td><td class="summary-value" id="total-ping">0.00</td></tr>
-                    <tr><td class="summary-label">權狀坪數 (無車位)：</td><td class="summary-value" id="total-ping-no-parking">0.00</td></tr>
-                    <tr><td class="summary-label">室內坪數：</td><td class="summary-value" id="indoor-ping">0.00</td></tr>
-                    <tr><td class="summary-label">公設坪數：</td><td class="summary-value" id="common-area-ping">0.00</td></tr>
-                    <tr><td class="summary-label">車位坪數：</td><td class="summary-value" id="parking-ping">0.00</td></tr>
-                    <tr><td class="summary-label">公設比：</td><td class="summary-value" id="common-area-ratio">0.00%</td></tr>
+                    <tr>
+                        <td class="summary-label">權狀坪數：</td>
+                        <td class="summary-value" id="total-ping">0.00</td>
+                        <td class="summary-label">室內坪數：</td>
+                        <td class="summary-value" id="indoor-ping">0.00</td>
+                        <td class="summary-label">車位坪數：</td>
+                        <td class="summary-value" id="parking-ping">0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="summary-label">權狀坪數(無車位)：</td>
+                        <td class="summary-value" id="total-ping-no-parking">0.00</td>
+                        <td class="summary-label">公設坪數：</td>
+                        <td class="summary-value" id="common-area-ping">0.00</td>
+                        <td class="summary-label">公設比：</td>
+                        <td class="summary-value" id="common-area-ratio">0.00%</td>
+                    </tr>
                 </tbody>
             </table>
-        </div>
+            </div>
     </div>
 
     <script>
-        const items = [
+        let commonCounter = 4;
+        let items = [
             { id: 'main', item: '主建物', desc: '總面積', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'balcony', item: '附屬建物', desc: '陽台', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'flower_terrace', item: '', desc: '花台', area: 0.00, num: 1.00, den: 1.00 },
@@ -87,14 +112,26 @@
             { id: 'parking', item: '車位部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'common1', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'common2', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
-            { id: 'common3', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 }
+            { id: 'common3', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
+            { id: 'common4', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 }
         ];
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('hamburger-menu').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('active'));
-            
-            const tableBody = document.querySelector('#main-table tbody');
-            tableBody.innerHTML = items.map(i => `
+            renderTable();
+            setupSidebar();
+            calculateAll();
+        });
+
+        function renderTable() {
+            const tableBody = document.getElementById('calc-table-body');
+            const itemsHtml = items.map(createRowHtml).join('');
+            tableBody.innerHTML = itemsHtml + createAddButtonRowHtml();
+            document.getElementById('add-common-btn').addEventListener('click', addCommonRow);
+        }
+
+        function createRowHtml(i) {
+            return `
                 <tr>
                     <td class="item-label">${i.item}</td>
                     <td>${i.desc}</td>
@@ -102,9 +139,31 @@
                     <td><input type="number" id="num-${i.id}" value="${roundHalfUp(i.num, 2)}" oninput="calculateAll()" onfocus="this.select()"></td>
                     <td><input type="number" id="den-${i.id}" value="${roundHalfUp(i.den, 2)}" oninput="calculateAll()" onfocus="this.select()"></td>
                     <td class="ping-result" id="ping-${i.id}">0.00</td>
-                </tr>
-            `).join('');
+                </tr>`;
+        }
+        
+        function createAddButtonRowHtml() {
+            return `
+                <tr class="add-row">
+                    <td colspan="6" style="text-align: left; vertical-align: middle;">
+                        <button type="button" id="add-common-btn" class="add-btn">+</button>
+                        <span>新增「共有部分」欄位</span>
+                    </td>
+                </tr>`;
+        }
 
+        function addCommonRow() {
+            commonCounter++;
+            const newId = 'common' + commonCounter;
+            const newItem = { id: newId, item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 };
+            items.push(newItem);
+            const newRow = createRowHtml(newItem);
+            const addButtonRow = document.querySelector('.add-row');
+            addButtonRow.insertAdjacentHTML('beforebegin', newRow);
+            calculateAll();
+        }
+
+        function setupSidebar() {
             const sidebar = document.querySelector('.sidebar');
             sidebar.innerHTML = `
                 <h3>選單</h3>
@@ -115,10 +174,7 @@
                 <a href="index4.html">請款表單</a>
                 <a href="index5.html" class="active-link">房屋坪數計算器</a>
             `;
-            
-            // 頁面載入時執行一次計算
-            calculateAll();
-        });
+        }
 
         function roundHalfUp(num, decimalPlaces) {
             const d = Math.pow(10, decimalPlaces);
@@ -130,62 +186,36 @@
             const num = parseFloat(document.getElementById(`num-${id}`).value) || 1;
             const den = parseFloat(document.getElementById(`den-${id}`).value) || 1;
             if (den === 0) return 0;
-            const ping = (area * num / den) * 0.3205; 
+            const ping = (area * num / den) * 0.3025; 
             return ping;
         }
 
         function calculateAll() {
             let itemPings = {};
-            let originalPings = {};
+            const commonItems = items.filter(i => i.id.startsWith('common'));
             items.forEach(i => {
                 const ping = calculateItemPing(i.id);
                 itemPings[i.id] = ping;
-                originalPings[i.id] = ping;
                 document.getElementById(`ping-${i.id}`).textContent = roundHalfUp(ping, 2);
             });
-
-            // 調整第一個共有部分的坪數
             itemPings.common1 -= itemPings.parking;
             if(itemPings.common1 < 0) { itemPings.common1 = 0};
             document.getElementById('ping-common1').textContent = roundHalfUp(itemPings.common1, 2);
-            
-            // 室內坪數
             const indoorPing = itemPings.main + itemPings.balcony + itemPings.flower_terrace + itemPings.rain_canopy + itemPings.platform;
-            
-            // 公設坪數
-            const commonAreaPing = itemPings.common1 + itemPings.common2 + itemPings.common3;
-            
-            // 車位坪數
+            const commonAreaPing = commonItems.reduce((sum, item) => sum + (itemPings[item.id] || 0), 0);
             const parkingPing = itemPings.parking;
-
-            // 權狀坪數(無車位)
             const totalPingNoParking = indoorPing + commonAreaPing;
-            
-            // 權狀坪數
             const totalPing = totalPingNoParking + parkingPing;
-
-            // 公設比
             let commonAreaRatio = 0;
             if (totalPingNoParking > 0) {
                 commonAreaRatio = commonAreaPing / totalPingNoParking;
             }
-
-            // 更新所有總結欄位到畫面上
             document.getElementById('total-ping').textContent = roundHalfUp(totalPing, 2);
             document.getElementById('total-ping-no-parking').textContent = roundHalfUp(totalPingNoParking, 2);
             document.getElementById('indoor-ping').textContent = roundHalfUp(indoorPing, 2);
             document.getElementById('common-area-ping').textContent = roundHalfUp(commonAreaPing, 2);
             document.getElementById('parking-ping').textContent = roundHalfUp(parkingPing, 2);
             document.getElementById('common-area-ratio').textContent = `${roundHalfUp(commonAreaRatio * 100, 2)}%`;
-        }
-        
-        function clearAll() {
-             items.forEach(i => {
-                document.getElementById(`area-${i.id}`).value = roundHalfUp(i.area, 2);
-                document.getElementById(`num-${i.id}`).value = roundHalfUp(i.num, 2);
-                document.getElementById(`den-${i.id}`).value = roundHalfUp(i.den, 2);
-            });
-            calculateAll();
         }
     </script>
 </body>
