@@ -34,8 +34,6 @@
             padding: 0 20px;
             box-sizing: border-box;
         }
-
-        /* Header */
         .header {
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -64,8 +62,6 @@
             transition: color 0.2s;
         }
         .nav a:hover { color: var(--primary-color); }
-
-        /* Hero Section */
         .hero {
             background-color: var(--bg-light);
             text-align: center;
@@ -100,8 +96,6 @@
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);
         }
-
-        /* Section Generic Styles */
         .section {
             padding: 80px 0;
         }
@@ -120,8 +114,6 @@
             background-color: var(--primary-color);
             margin: 15px auto 0;
         }
-
-        /* Features Section */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -145,8 +137,6 @@
             color: var(--text-light);
             line-height: 1.6;
         }
-
-        /* Tools Section */
         .tools-section {
             background-color: var(--bg-light);
         }
@@ -192,8 +182,6 @@
             text-decoration: none;
             font-weight: 500;
         }
-
-        /* Footer */
         .footer {
             background-color: var(--text-dark);
             color: #aeb9c5;
@@ -202,8 +190,6 @@
         }
         .footer p { margin: 10px 0 0 0; }
         .footer .logo { font-size: 28px; color: var(--bg-white); }
-
-        /* RWD */
         @media (max-width: 992px) {
             .nav { display: none; }
             .hero h1 { font-size: 40px; }
@@ -223,7 +209,6 @@
             </nav>
         </div>
     </header>
-
     <main>
         <section class="hero">
             <div class="container">
@@ -232,7 +217,6 @@
                 <a href="#tools" class="cta-button">開始使用財務工具</a>
             </div>
         </section>
-
         <section id="features" class="section">
             <div class="container">
                 <h2 class="section-title">選擇我們的優勢</h2>
@@ -255,15 +239,14 @@
                 </div>
             </div>
         </section>
-
         <section id="tools" class="section tools-section">
             <div class="container">
                 <h2 class="section-title">線上工具列表</h2>
                 <div class="tools-grid">
                     <div class="tool-card">
                         <div class="tool-card-content">
-                            <h3>利率試算</h3>
-                            <p>根據本金、期限和年利率，快速計算出每月應還款金額。</p>
+                            <h3>利率計算</h3>
+                            <p>包含汽貸與房貸的專業試算，支援本息與本金攤還，並提供視覺化圖表分析。</p>
                         </div>
                         <div class="tool-card-footer">
                             <a href="index1.html">前往使用 &rarr;</a>
@@ -296,13 +279,22 @@
                             <a href="index4.html">前往使用 &rarr;</a>
                         </div>
                     </div>
+                     <div class="tool-card">
+                        <div class="tool-card-content">
+                            <h3>請款表單</h3>
+                            <p>制式化的線上表單，方便您快速提交請款申請。</p>
+                        </div>
+                        <div class="tool-card-footer">
+                            <a href="index5.html">前往使用 &rarr;</a>
+                        </div>
+                    </div>
                     <div class="tool-card">
                         <div class="tool-card-content">
                             <h3>房屋坪數計算器</h3>
                             <p>輕鬆換算建物面積，計算主建物、公設、車位等各項坪數與公設比。</p>
                         </div>
                         <div class="tool-card-footer">
-                            <a href="index5.html">前往使用 &rarr;</a>
+                            <a href="index6.html">前往使用 &rarr;</a>
                         </div>
                     </div>
                     <div class="tool-card">
@@ -311,14 +303,13 @@
                             <p>輸入地址，快速查詢該地區在房市中的分級與特色。</p>
                         </div>
                         <div class="tool-card-footer">
-                            <a href="index6.html">前往使用 &rarr;</a>
+                            <a href="index7.html">前往使用 &rarr;</a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
-
     <footer class="footer">
         <div class="container">
             <div class="logo">金倢理債王</div>
