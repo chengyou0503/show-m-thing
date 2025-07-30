@@ -3,385 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>結清金額試算</title>
+  <title>通時通數計算器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* 原有頁面樣式，保持不變 */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f9f9f9;
-      display: flex;
-    }
-    .main-content {
-        /* 移除 margin-left: 250px; 改由 media query 控制 */
-        margin-left: 0;
-        width: 100%;
-        padding: 20px;
-        transition: margin-left 0.3s ease;
-    }
-    .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-    }
-    .left-section, .right-section {
-      width: 50%;
-      padding: 20px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      margin-top: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-      border: 1px solid #ddd;
-    }
-    th {
-      background-color: #007BFF;
-      color: white;
-    }
-    label {
-      display: block;
-      margin-bottom: 15px;
-      font-size: 18px;
-    }
-    input {
-      padding: 8px;
-      font-size: 16px;
-      width: 100%;
-      box-sizing: border-box;
-      max-width: 400px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      text-align: center;
-      border-radius: 4px;
-    }
-    input[readonly] {
-        background-color: #e9ecef;
-    }
-    h2 {
-      margin-bottom: 20px;
-      font-size: 28px;
-    }
+      :root {
+          --font-family: 'Noto Sans TC', sans-serif;
+          --primary-color: #007aff;
+          --primary-hover-color: #005ecb;
+          --text-dark: #2c3e50;
+          --text-light: #576b80;
+          --border-color: #dde1e6; 
+          --bg-light: #f8f9fa;
+          --bg-white: #ffffff;
+      }
+      body { 
+          font-family: var(--font-family); margin: 0; background-color: var(--bg-light); 
+          display: flex; color: var(--text-dark);
+      }
+      .sidebar { 
+          width: 250px; background-color: #333; color: white; height: 100vh; position: fixed; 
+          left: 0; top: 0; overflow-y: auto; z-index: 1000; box-sizing: border-box;
+          transform: translateX(-100%); transition: transform 0.3s ease; 
+      }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar-content { padding: 20px; }
+      .sidebar a { color: white; text-decoration: none; display: block; padding: 12px 0; font-size: 18px; }
+      .sidebar a:hover, .sidebar a.active-link { background-color: #575757; }
+      .sidebar h3 { color: white; font-size: 36px; margin: 0 0 10px 0; }
+      .content { margin-left: 0; width: 100%; padding: 40px; box-sizing: border-box; transition: margin-left 0.3s ease; display: flex; flex-direction: column; align-items: center; }
+      #hamburger-menu { display: block; font-size: 28px; background: none; border: none; color: var(--text-dark); padding: 10px; cursor: pointer; position: fixed; top: 10px; left: 10px; z-index: 1100; }
 
-    /* --- 修改 START：換上標準化側邊欄樣式 --- */
-    .sidebar { 
-        width: 250px; 
-        background-color: #333; 
-        color: white; 
-        height: 100vh; 
-        position: fixed; 
-        left: 0; 
-        top: 0; 
-        overflow-y: auto; 
-        z-index: 1000; 
-        box-sizing: border-box;
-        transform: translateX(-100%); 
-        transition: transform 0.3s ease; 
-    }
-    .sidebar.active { 
-        transform: translateX(0); 
-    }
-    .sidebar-content {
-        padding: 20px;
-    }
-    .sidebar a {
-        color: white;
-        text-decoration: none;
-        display: block;
-        padding: 12px 0;
-        font-size: 18px;
-    }
-    .sidebar a:hover, .sidebar a.active-link {
-        background-color: #575757;
-    }
-    .sidebar h3 {
-        color: white;
-        font-size: 36px;
-        margin: 0 0 10px 0;
-    }
-    #hamburger-menu {
-        display: block;
-        font-size: 28px;
-        background: none;
-        border: none;
-        color: #333;
-        padding: 10px;
-        cursor: pointer;
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        z-index: 1100;
-    }
+      @media (min-width: 993px) {
+          .content { margin-left: 250px; }
+          .sidebar { transform: translateX(0); }
+          #hamburger-menu { display: none; }
+      }
 
-    /* RWD 響應式設定 */
-    @media (max-width: 992px) {
-        .main-content {
-            width: 100%;
-        }
-        .container {
-            flex-direction: column;
-        }
-        .left-section, .right-section {
-            width: 100%;
-        }
-    }
-
-    /* 電腦版樣式 */
-    @media (min-width: 993px) {
-        .main-content {
-            margin-left: 250px;
-        }
-        .sidebar {
-            transform: translateX(0);
-        }
-        #hamburger-menu {
-            display: none;
-        }
-    }
-    /* --- 修改 END --- */
+      /* Page-specific styles */
+      #calculator-wrapper { width: 100%; max-width: 900px; background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: 0 8px 25px rgba(44, 62, 80, 0.08); border: 1px solid var(--border-color); }
+      h2 { text-align: center; color: var(--text-dark); margin-top: 0; font-size: 32px; margin-bottom: 30px; font-weight: 700; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid var(--border-color); padding: 12px; text-align: center; }
+      th { background-color: var(--primary-color); color: white; font-weight: 500; }
+      td[contenteditable="true"] { background-color: #fdfdfd; outline: none; }
+      td[contenteditable="true"]:focus { background-color: #e6f7ff; border-color: var(--primary-color); }
+      @media (max-width: 992px) {
+          .content { padding: 20px 10px; }
+          #calculator-wrapper { padding: 15px; box-shadow: none; border: none; border-radius: 0;}
+          h2 { font-size: 24px; }
+      }
   </style>
 </head>
 <body>
   <button id="hamburger-menu">&#9776;</button>
-  
   <div class="sidebar" id="sidebar"></div>
-  
-  <div class="main-content">
-    <div class="container">
-      <div class="left-section">
-        <h2>汽車貸款分析 (本息平均攤還表)</h2>
-        <label>貸款金額: <input type="number" id="loanAmount" placeholder="請輸入貸款金額"></label>
-        <label>每期償還: <input type="number" id="monthlyPayment" placeholder="請輸入月付款"></label>
-        <label>貸款期數: <input type="number" id="loanTerm" placeholder="請輸入貸款期數"></label>
-        <label>貸款日期: <input type="date" id="loanDate"></label>
-        <label>貸款利率: <input type="text" id="interestRate" placeholder="自動計算" readonly>%</label>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>期數</th><th>日期</th><th>剩餘本金</th><th>應繳本金</th><th>應繳利息</th><th>累計償還本金</th><th>累計償還利息</th>
-              </tr>
-            </thead>
-            <tbody id="loanTableBody"></tbody>
-          </table>
-        </div>
+  <div class="content">
+      <div id="calculator-wrapper">
+          <h2>通時通數計算器</h2>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>姓名</th><th>時</th><th>分</th><th>秒</th><th>通數</th><th>合計</th><th>顯示</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <tr>
+                  <td contenteditable="true" class="name">Iris</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+                <tr>
+                  <td contenteditable="true" class="name">Chloe</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+                <tr>
+                  <td contenteditable="true" class="name">Evan</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+                <tr>
+                  <td contenteditable="true" class="name">Alva</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
       </div>
-      <div class="right-section">
-        <h2>結清金額試算</h2>
-        <table>
-          <tr><th>一次約</th><th>月付款</th><th>已繳期數</th><th>結果</th></tr>
-          <tr>
-            <td>裕富 21世紀</td>
-            <td><span id="paymentYufu">0</span></td>
-            <td><input type="number" id="paidPeriodsYufu" value="0"></td>
-            <td id="resultYufu">$0</td>
-          </tr>
-        </table>
-        <table id="extraTableOnce">
-          <thead>
-            <tr><th>一次約</th><th>月付款</th><th>已繳期數</th><th>當期剩餘本金</th><th>結果</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>和潤 中租 裕融</td><td id="extraMonthlyPaymentOnce">0</td>
-              <td><input type="number" id="paidPeriodsOnceExtra" value="0"></td>
-              <td id="extraCurrentBalanceOnce">0</td><td id="extraResultOnce">0</td>
-            </tr>
-          </tbody>
-        </table>
-        <table id="extraTableTwice">
-          <thead>
-            <tr><th>二次約</th><th>月付款</th><th>已繳期數</th><th>20期剩餘本金</th><th id="resultHeaderTwice">結果(未滿20期)</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>和潤 中租 裕融</td><td id="extraMonthlyPaymentTwice">0</td>
-              <td id="sharedPaidPeriodsExtra">0</td><td id="extraCurrentBalanceTwice">0</td>
-              <td id="extraResultTwice">0</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
-
   <script>
-    /* --- 修改 START：換上標準化側邊欄 JavaScript --- */
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener('DOMContentLoaded', function() {
         setupSidebar();
         document.getElementById('hamburger-menu').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('active');
         });
-
-        // --- 以下是您頁面原有的 JavaScript 初始化程式碼 ---
-        document.getElementById("loanDate").value = new Date().toISOString().split('T')[0];
-        ["loanAmount", "monthlyPayment", "loanTerm", "loanDate"].forEach(id => {
-            document.getElementById(id).addEventListener("input", generateLoanSchedule);
-        });
-        document.getElementById("paidPeriodsYufu").addEventListener("input", updateResult);
-        document.getElementById("paidPeriodsOnceExtra").addEventListener("input", function() {
-            updateExtraOnce();
-            updateExtraTwice();
-            document.getElementById("sharedPaidPeriodsExtra").textContent = this.value;
-        });
-        generateLoanSchedule();
+        attachEvents();
     });
-
     function setupSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.innerHTML = `
             <div class="sidebar-content">
-                <h3>選單</h3>
-                <a href="index.html">利率計算</a>
-                <a href="index1.html">通時通數計算器</a>
-                <a href="index2.html" class="active-link">結清金額試算</a>
-                <a href="index3.html">存款積數</a>
-                <a href="index4.html">請款表單</a>
-                <a href="index5.html">房屋坪數計算器</a>
-                <a href="index6.html">蛋黃蛋白區查詢</a>
+              <h3>選單</h3>
+                    <a href="index1.html" class="active-link">利率計算</a>
+                    <a href="index2.html">通時通數計算器</a>
+                    <a href="index3.html">結清金額試算</a>
+                    <a href="index4.html">存款積數</a>
+                    <a href="index5.html">請款表單</a>
+                    <a href="index6.html">房屋坪數計算器</a>
+                    <a href="index7.html">蛋黃蛋白區查詢</a>
             </div>
         `;
         const sidebarLinks = sidebar.querySelectorAll('a');
         sidebarLinks.forEach(link => {
             link.addEventListener('click', (event) => {
-                const mainSidebar = document.getElementById('sidebar');
-                if (mainSidebar.classList.contains('active')) {
+                if (sidebar.classList.contains('active')) {
                     event.preventDefault();
                     const destination = link.href;
-                    mainSidebar.classList.remove('active');
+                    sidebar.classList.remove('active');
                     setTimeout(() => { window.location.href = destination; }, 300);
                 }
             });
         });
     }
-    /* --- 修改 END --- */
 
-    // --- 以下是您頁面原有的 JavaScript 計算功能，保持不變 ---
-    function formatCurrency(num) {
-      return "$" + Number(num.toFixed(0)).toLocaleString() + " 元";
+    function evaluateExpression(expression) {
+      try {
+        if (String(expression).startsWith('=')) { return Function('"use strict";return (' + expression.substring(1) + ')')(); }
+        return isNaN(expression) ? expression : parseFloat(expression);
+      } catch (error) { return "錯誤"; }
     }
-    function computeMonthlyInterestRate(loanAmount, monthlyPayment, loanTerm) {
-      if (loanAmount <= 0 || monthlyPayment <= 0 || loanTerm <= 0) return 0;
-      const epsilon = 1e-7;
-      let low = 0, high = 1, r = 0;
-      if (loanAmount >= monthlyPayment * loanTerm) return 0;
-
-      for (let i = 0; i < 100; i++) {
-        r = (low + high) / 2;
-        let calcPayment;
-        if (r < epsilon) {
-            calcPayment = loanAmount / loanTerm;
+    function calculateTotal(row) {
+      let hours = evaluateExpression(row.querySelector('.hours').textContent.trim()) || 0;
+      let minutes = evaluateExpression(row.querySelector('.minutes').textContent.trim()) || 0;
+      let seconds = evaluateExpression(row.querySelector('.seconds').textContent.trim()) || 0;
+      let calls = evaluateExpression(row.querySelector('.calls').textContent.trim()) || 0;
+      let totalMinutes = (hours * 60) + minutes + (seconds / 60);
+      let roundedTotal = Math.round(totalMinutes);
+      row.querySelector('.total').textContent = totalMinutes.toFixed(2);
+      row.querySelector('.summary').textContent = `${row.querySelector('.name').textContent.trim()} ${calls}通 ${roundedTotal}分`;
+    }
+    function handleBlur(cell, row) {
+      let value = cell.textContent.trim();
+      if (value.startsWith('=')) { cell.textContent = evaluateExpression(value); }
+      calculateTotal(row);
+    }
+    function handleEnter(event, row) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        let editableCells = Array.from(row.querySelectorAll('[contenteditable="true"]'));
+        let currentCell = event.target;
+        let currentIndex = editableCells.indexOf(currentCell);
+        if (currentIndex < editableCells.length - 1) { editableCells[currentIndex + 1].focus();
         } else {
-            calcPayment = loanAmount * (r * Math.pow(1 + r, loanTerm)) / (Math.pow(1 + r, loanTerm) - 1);
+          let nextRow = row.nextElementSibling;
+          if (nextRow) { nextRow.querySelectorAll('[contenteditable="true"]')[0]?.focus(); }
         }
-        if (Math.abs(calcPayment - monthlyPayment) < epsilon) break;
-        if (calcPayment > monthlyPayment) high = r;
-        else low = r;
       }
-      return r;
     }
-    function generateLoanSchedule() {
-      const loanAmount = parseFloat(document.getElementById("loanAmount").value) || 0;
-      const monthlyPayment = parseFloat(document.getElementById("monthlyPayment").value) || 0;
-      const loanTerm = parseInt(document.getElementById("loanTerm").value) || 0;
-      const loanDate = document.getElementById("loanDate").value;
-
-      if (loanAmount <= 0 || monthlyPayment <= 0 || loanTerm <= 0) {
-        document.getElementById("loanTableBody").innerHTML = "";
-        document.getElementById("interestRate").value = "";
-        document.getElementById("paymentYufu").textContent = "0";
-        updateResult(); updateExtraOnce(); updateExtraTwice();
-        return;
-      }
-      
-      const monthlyInterestRate = computeMonthlyInterestRate(loanAmount, monthlyPayment, loanTerm);
-      const annualInterestRate = monthlyInterestRate * 12 * 100;
-      document.getElementById("interestRate").value = annualInterestRate.toFixed(4);
-      document.getElementById("paymentYufu").textContent = monthlyPayment.toLocaleString();
-
-      const tableBody = document.getElementById("loanTableBody");
-      tableBody.innerHTML = "";
-      let remainingPrincipal = loanAmount;
-      let totalPaidPrincipal = 0, totalPaidInterest = 0;
-      let date = new Date(loanDate);
-
-      for (let i = 1; i <= loanTerm; i++) {
-        const interestPaid = remainingPrincipal * monthlyInterestRate;
-        const principalPaid = monthlyPayment - interestPaid;
-        totalPaidPrincipal += principalPaid;
-        totalPaidInterest += interestPaid;
-        remainingPrincipal -= principalPaid;
-        if (remainingPrincipal < 0) remainingPrincipal = 0;
-
-        let newRow = `<tr>
-          <td>${i}</td>
-          <td>${date.toISOString().split('T')[0]}</td>
-          <td class="remaining-principal">${Math.round(remainingPrincipal).toLocaleString()}</td>
-          <td>${Math.round(principalPaid).toLocaleString()}</td>
-          <td>${Math.round(interestPaid).toLocaleString()}</td>
-          <td>${Math.round(totalPaidPrincipal).toLocaleString()}</td>
-          <td>${Math.round(totalPaidInterest).toLocaleString()}</td>
-        </tr>`;
-        tableBody.innerHTML += newRow;
-        date.setMonth(date.getMonth() + 1);
-      }
-      updateResult(); updateExtraOnce(); updateExtraTwice();
-    }
-    function getRemainingPrincipal(period) {
-        if(period <= 0) return parseFloat(document.getElementById("loanAmount").value) || 0;
-        const loanTableRows = document.getElementById("loanTableBody").rows;
-        if (period > loanTableRows.length) period = loanTableRows.length;
-        const cellText = loanTableRows[period - 1]?.cells[2]?.innerText.replace(/[^0-9.-]+/g, "") || "0";
-        return parseFloat(cellText);
-    }
-    function updateResult() {
-      const monthlyPayment = parseFloat(document.getElementById("monthlyPayment").value) || 0;
-      const loanTerm = parseInt(document.getElementById("loanTerm").value) || 0;
-      let paidPeriods = parseInt(document.getElementById("paidPeriodsYufu").value) || 0;
-      if (paidPeriods > loanTerm) { paidPeriods = loanTerm; document.getElementById("paidPeriodsYufu").value = loanTerm; }
-      const result = Math.ceil(monthlyPayment * (loanTerm - paidPeriods));
-      document.getElementById("resultYufu").textContent = formatCurrency(result);
-    }
-    function updateExtraOnce() {
-      const paidPeriods = parseInt(document.getElementById("paidPeriodsOnceExtra").value) || 0;
-      const remainingPrincipal = getRemainingPrincipal(paidPeriods);
-      document.getElementById("extraMonthlyPaymentOnce").textContent = (parseFloat(document.getElementById("monthlyPayment").value) || 0).toLocaleString();
-      document.getElementById("extraCurrentBalanceOnce").textContent = remainingPrincipal.toLocaleString();
-      const result = paidPeriods < 20 ? remainingPrincipal * 1.12 : "無需計算";
-      document.getElementById("extraResultOnce").textContent = (typeof result === "number") ? formatCurrency(Math.ceil(result)) : result;
-    }
-    function updateExtraTwice() {
-      const paidPeriods = parseInt(document.getElementById("paidPeriodsOnceExtra").value) || 0;
-      const remainingPrincipalAt20 = getRemainingPrincipal(20);
-      document.getElementById("extraCurrentBalanceTwice").textContent = remainingPrincipalAt20.toLocaleString();
-      const monthlyPaymentText = (parseFloat(document.getElementById("monthlyPayment").value) || 0).toLocaleString();
-      document.getElementById("extraMonthlyPaymentTwice").textContent = monthlyPaymentText;
-      document.getElementById("sharedPaidPeriodsExtra").textContent = paidPeriods;
-      const headerText = paidPeriods < 20 ? "結果(未滿20期)" : "結果(超過20期)";
-      document.getElementById("resultHeaderTwice").textContent = headerText;
-      let result = 0;
-      const monthlyPayment = parseFloat(document.getElementById("monthlyPayment").value) || 0;
-      if (paidPeriods < 20) {
-        result = remainingPrincipalAt20 * 1.03 + monthlyPayment * (20 - paidPeriods);
-      } else {
-        const currentRemainingPrincipal = getRemainingPrincipal(paidPeriods);
-        result = currentRemainingPrincipal * 1.03;
-      }
-      document.getElementById("extraResultTwice").textContent = formatCurrency(Math.ceil(result));
+    function attachEvents() {
+      document.querySelectorAll("#table-body tr").forEach(row => {
+        let editableCells = row.querySelectorAll('[contenteditable="true"]');
+        editableCells.forEach(cell => {
+          cell.addEventListener('input', () => calculateTotal(row));
+          if (cell.classList.contains('hours') || cell.classList.contains('minutes') || cell.classList.contains('seconds') || cell.classList.contains('calls')) {
+            cell.addEventListener('blur', () => handleBlur(cell, row));
+          }
+          cell.addEventListener('keydown', (event) => handleEnter(event, row));
+        });
+        calculateTotal(row);
+      });
     }
   </script>
 </body>
