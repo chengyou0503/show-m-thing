@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>通時通數計算器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --font-family: 'Noto Sans TC', sans-serif;
+          --primary-color: #007aff;
+          --primary-hover-color: #005ecb;
+          --text-dark: #2c3e50;
+          --text-light: #576b80;
+          --border-color: #dde1e6; 
+          --bg-light: #f8f9fa;
+          --bg-white: #ffffff;
+      }
+      body { 
+          font-family: var(--font-family); margin: 0; background-color: var(--bg-light); 
+          display: flex; color: var(--text-dark);
+      }
+      .sidebar { 
+          width: 250px; background-color: #333; color: white; height: 100vh; position: fixed; 
+          left: 0; top: 0; overflow-y: auto; z-index: 1000; box-sizing: border-box;
+          transform: translateX(-100%); transition: transform 0.3s ease; 
+      }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar-content { padding: 20px; }
+      .sidebar a { color: white; text-decoration: none; display: block; padding: 12px 0; font-size: 18px; }
+      .sidebar a:hover, .sidebar a.active-link { background-color: #575757; }
+      .sidebar h3 { color: white; font-size: 36px; margin: 0 0 10px 0; }
+      .content { margin-left: 0; width: 100%; padding: 40px; box-sizing: border-box; transition: margin-left 0.3s ease; display: flex; flex-direction: column; align-items: center; }
+      #hamburger-menu { display: block; font-size: 28px; background: none; border: none; color: var(--text-dark); padding: 10px; cursor: pointer; position: fixed; top: 10px; left: 10px; z-index: 1100; }
+
+      @media (min-width: 993px) {
+          .content { margin-left: 250px; }
+          .sidebar { transform: translateX(0); }
+          #hamburger-menu { display: none; }
+      }
+
+      /* Page-specific styles */
+      #calculator-wrapper { width: 100%; max-width: 900px; background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: 0 8px 25px rgba(44, 62, 80, 0.08); border: 1px solid var(--border-color); }
+      h2 { text-align: center; color: var(--text-dark); margin-top: 0; font-size: 32px; margin-bottom: 30px; font-weight: 700; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid var(--border-color); padding: 12px; text-align: center; }
+      th { background-color: var(--primary-color); color: white; font-weight: 500; }
+      td[contenteditable="true"] { background-color: #fdfdfd; outline: none; }
+      td[contenteditable="true"]:focus { background-color: #e6f7ff; border-color: var(--primary-color); }
+      @media (max-width: 992px) {
+          .content { padding: 20px 10px; }
+          #calculator-wrapper { padding: 15px; box-shadow: none; border: none; border-radius: 0;}
+          h2 { font-size: 24px; }
+      }
+  </style>
+</head>
+<body>
+  <button id="hamburger-menu">&#9776;</button>
+  <div class="sidebar" id="sidebar"></div>
+  <div class="content">
+      <div id="calculator-wrapper">
+          <h2>通時通數計算器</h2>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>姓名</th><th>時</th><th>分</th><th>秒</th><th>通數</th><th>合計</th><th>顯示</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <tr>
+                  <td contenteditable="true" class="name">Iris</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+                <tr>
+                  <td contenteditable="true" class="name">Chloe</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+                <tr>
+                  <td contenteditable="true" class="name">Evan</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+                <tr>
+                  <td contenteditable="true" class="name">Alva</td><td contenteditable="true" class="hours"></td><td contenteditable="true" class="minutes"></td><td contenteditable="true" class="seconds"></td><td contenteditable="true" class="calls"></td><td class="total"></td><td class="summary"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setupSidebar();
+        document.getElementById('hamburger-menu').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+        attachEvents();
+    });
+    function setupSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.innerHTML = `
+            <div class="sidebar-content">
+              <h3>選單</h3>
+                    <a href="index1.html" class="active-link">利率計算</a>
+                    <a href="index2.html">通時通數計算器</a>
+                    <a href="index3.html">結清金額試算</a>
+                    <a href="index4.html">存款積數</a>
+                    <a href="index5.html">請款表單</a>
+                    <a href="index6.html">房屋坪數計算器</a>
+                    <a href="index7.html">蛋黃蛋白區查詢</a>
+            </div>
+        `;
+        const sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                if (sidebar.classList.contains('active')) {
+                    event.preventDefault();
+                    const destination = link.href;
+                    sidebar.classList.remove('active');
+                    setTimeout(() => { window.location.href = destination; }, 300);
+                }
+            });
+        });
+    }
+
+    function evaluateExpression(expression) {
+      try {
+        if (String(expression).startsWith('=')) { return Function('"use strict";return (' + expression.substring(1) + ')')(); }
+        return isNaN(expression) ? expression : parseFloat(expression);
+      } catch (error) { return "錯誤"; }
+    }
+    function calculateTotal(row) {
+      let hours = evaluateExpression(row.querySelector('.hours').textContent.trim()) || 0;
+      let minutes = evaluateExpression(row.querySelector('.minutes').textContent.trim()) || 0;
+      let seconds = evaluateExpression(row.querySelector('.seconds').textContent.trim()) || 0;
+      let calls = evaluateExpression(row.querySelector('.calls').textContent.trim()) || 0;
+      let totalMinutes = (hours * 60) + minutes + (seconds / 60);
+      let roundedTotal = Math.round(totalMinutes);
+      row.querySelector('.total').textContent = totalMinutes.toFixed(2);
+      row.querySelector('.summary').textContent = `${row.querySelector('.name').textContent.trim()} ${calls}通 ${roundedTotal}分`;
+    }
+    function handleBlur(cell, row) {
+      let value = cell.textContent.trim();
+      if (value.startsWith('=')) { cell.textContent = evaluateExpression(value); }
+      calculateTotal(row);
+    }
+    function handleEnter(event, row) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        let editableCells = Array.from(row.querySelectorAll('[contenteditable="true"]'));
+        let currentCell = event.target;
+        let currentIndex = editableCells.indexOf(currentCell);
+        if (currentIndex < editableCells.length - 1) { editableCells[currentIndex + 1].focus();
+        } else {
+          let nextRow = row.nextElementSibling;
+          if (nextRow) { nextRow.querySelectorAll('[contenteditable="true"]')[0]?.focus(); }
+        }
+      }
+    }
+    function attachEvents() {
+      document.querySelectorAll("#table-body tr").forEach(row => {
+        let editableCells = row.querySelectorAll('[contenteditable="true"]');
+        editableCells.forEach(cell => {
+          cell.addEventListener('input', () => calculateTotal(row));
+          if (cell.classList.contains('hours') || cell.classList.contains('minutes') || cell.classList.contains('seconds') || cell.classList.contains('calls')) {
+            cell.addEventListener('blur', () => handleBlur(cell, row));
+          }
+          cell.addEventListener('keydown', (event) => handleEnter(event, row));
+        });
+        calculateTotal(row);
+      });
+    }
+  </script>
+</body>
+</html>

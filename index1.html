@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>貸款利率試算 - 金倢理債王</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --font-family: 'Noto Sans TC', sans-serif;
+            --primary-color: #007aff;
+            --primary-hover-color: #005ecb;
+            --text-dark: #2c3e50;
+            --text-light: #576b80;
+            --border-color: #e_a_e_c_e_f; 
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --card-shadow: 0 8px 25px rgba(44, 62, 80, 0.08);
+            --input-shadow-focus: 0 0 0 3px rgba(0, 122, 255, 0.15);
+            /* 等級顏色 */
+            --rank-a-color: #ff9f43; /* 蛋黃 */
+            --rank-b-color: #1e90ff; /* 蛋白B */
+            --rank-c-color: #2ecc71; /* 蛋白C */
+            --rank-d-color: #95a5a6; /* 蛋殼 */
+        }
+        body { 
+            font-family: var(--font-family); margin: 0; background-color: var(--bg-light); 
+            display: flex; color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .sidebar { 
+            width: 250px; background-color: #333; color: white; height: 100vh; position: fixed; 
+            left: 0; top: 0; overflow-y: auto; z-index: 1000; box-sizing: border-box;
+            transform: translateX(-100%); transition: transform 0.3s ease; 
+        }
+        .sidebar.active { transform: translateX(0); }
+        .sidebar-content { padding: 20px; }
+        .sidebar a { color: white; text-decoration: none; display: block; padding: 12px 0; font-size: 18px; }
+        .sidebar a:hover, .sidebar a.active-link { background-color: #575757; }
+        .sidebar h3 { color: white; font-size: 36px; margin: 0 0 10px 0; }
+        .content { margin-left: 0; width: 100%; padding: 50px; box-sizing: border-box; transition: margin-left 0.3s ease; display: flex; flex-direction: column; align-items: center; }
+        #hamburger-menu { display: block; font-size: 28px; background: none; border: none; color: var(--text-dark); padding: 10px; cursor: pointer; position: fixed; top: 10px; left: 10px; z-index: 1100; }
+
+        @media (min-width: 993px) {
+            .content { margin-left: 250px; }
+            .sidebar { transform: translateX(0); }
+            #hamburger-menu { display: none; }
+        }
+
+        #calculator-wrapper { width: 100%; max-width: 1000px; }
+        h1 { text-align: center; color: var(--text-dark); margin-top: 0; font-size: 32px; margin-bottom: 30px; font-weight: 700; }
+        
+        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 30px; }
+        .tab { padding: 15px 25px; cursor: pointer; font-size: 18px; font-weight: 500; color: var(--text-light); border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        
+        .calculator-layout { display: flex; gap: 30px; }
+        .calculator-form { flex: 1; }
+        .calculator-results { flex: 1; display: none; }
+        .form-card, .result-card { background: var(--bg-white); padding: 30px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
+        .result-card { margin-bottom: 20px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { font-weight: 500; color: var(--text-light); display: block; margin-bottom: 8px; }
+        .form-control { width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; }
+        .form-control:focus { border-color: var(--primary-color); box-shadow: var(--input-shadow-focus); outline: none; }
+        select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right .75rem center; background-size: 16px 12px; }
+        .btn-submit { width: 100%; background-color: var(--primary-color); border: none; padding: 15px; font-size: 18px; color: white; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; margin-top: 10px; }
+        
+        .result-summary h4 { margin: 0 0 5px 0; color: var(--text-light); font-size: 16px; font-weight: 500; }
+        .result-summary p { margin: 0; font-size: 28px; font-weight: 700; color: var(--primary-color); }
+        .result-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .chart-container { position: relative; width: 100%; max-width: 250px; margin: 20px auto; }
+
+        .amortization-table { margin-top: 20px; width: 100%; border-collapse: collapse; max-height: 300px; display: block; overflow-y: auto; }
+        .amortization-table th, .amortization-table td { border: 1px solid var(--border-color); padding: 10px; text-align: center; font-size: 14px; }
+        .amortization-table th { background-color: var(--bg-light); position: sticky; top: 0; }
+        
+        @media (max-width: 992px) {
+            .content { padding: 20px 10px; }
+            h1 { font-size: 24px; }
+            .calculator-layout { flex-direction: column; }
+            .form-card, .result-card { padding: 20px; box-shadow: none; border: none; border-radius: 0; background: none; }
+        }
+    </style>
+</head>
+<body>
+    <button id="hamburger-menu">&#9776;</button>
+    <div class="sidebar" id="sidebar"></div>
+    <div class="content">
+        <div id="calculator-wrapper">
+            <h1>貸款試算</h1>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="car-loan">汽車貸款</div>
+                <div class="tab" data-tab="mortgage-loan">房屋貸款</div>
+            </div>
+
+            <div id="car-loan" class="tab-content active">
+                </div>
+
+            <div id="mortgage-loan" class="tab-content">
+                <div class="calculator-layout">
+                    <div class="calculator-form">
+                         <div class="form-card">
+                            <form id="mortgageLoanForm" onsubmit="return false;">
+                                <div class="form-group">
+                                    <label for="mortgageLoanAmount" class="form-label">貸款總額 (萬元)</label>
+                                    <input type="number" id="mortgageLoanAmount" class="form-control" placeholder="例如: 1000" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mortgageLoanTerm" class="form-label">貸款年限 (年)</label>
+                                    <input type="number" id="mortgageLoanTerm" class="form-control" placeholder="例如: 30" required>
+                                </div>
+                                 <div class="form-group">
+                                    <label for="mortgageAnnualInterestRate" class="form-label">年利率 (%)</label>
+                                    <input type="number" id="mortgageAnnualInterestRate" step="0.01" class="form-control" placeholder="例如: 2.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gracePeriod" class="form-label">寬限期 (年)</label>
+                                    <input type="number" id="gracePeriod" class="form-control" value="0" placeholder="無寬限期請填 0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="repaymentMethod" class="form-label">還款方式</label>
+                                    <select id="repaymentMethod" class="form-control">
+                                        <option value="epi">本息平均攤還</option>
+                                        <option value="ep">本金平均攤還</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn-submit" onclick="calculateMortgage()">計算還款計畫</button>
+                            </form>
+                         </div>
+                    </div>
+                    <div class="calculator-results" id="mortgage-results">
+                        <div class="result-card result-summary">
+                            <h4 id="paymentTitle1">寬限期內月付</h4>
+                            <p id="mortgageMonthlyPayment1">0 元</p>
+                            <div class="result-details">
+                                <div>
+                                    <h4 id="paymentTitle2">寬限期後月付</h4>
+                                    <p id="mortgageMonthlyPayment2">0 元</p>
+                                </div>
+                                <div>
+                                    <h4>總利息支出</h4>
+                                    <p id="totalInterestPaid">0 元</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="result-card">
+                             <div class="chart-container">
+                                <canvas id="interestChart"></canvas>
+                             </div>
+                        </div>
+                         <div class="result-card">
+                             <h3 style="text-align:center; margin-bottom: 20px;">本息攤還明細表</h3>
+                             <div class="amortization-table-container">
+                                <table class="amortization-table">
+                                    <thead><tr><th>期數</th><th>月付金</th><th>還本金</th><th>還利息</th><th>餘額</th></tr></thead>
+                                    <tbody id="amortizationTableBody"></tbody>
+                                </table>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+      
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSidebar();
+            document.getElementById('hamburger-menu').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+            setupTabs();
+            // Populate car loan tab with its form
+            document.getElementById('car-loan').innerHTML = `
+                <div class="calculator-layout">
+                    <div class="calculator-form">
+                        <div class="form-card">
+                            <form id="carLoanForm" onsubmit="return false;">
+                                <div class="form-group">
+                                    <label for="carLoanAmount" class="form-label">本金 (元)</label>
+                                    <input type="number" id="carLoanAmount" class="form-control" placeholder="請輸入貸款金額" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="carLoanTerm" class="form-label">貸款期限 (月)</label>
+                                    <input type="number" id="carLoanTerm" class="form-control" placeholder="請輸入總期數" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="carAnnualInterestRate" class="form-label">年利率 (%)</label>
+                                    <input type="number" id="carAnnualInterestRate" step="0.01" class="form-control" placeholder="請輸入年利率" required>
+                                </div>
+                                <button type="button" class="btn-submit" onclick="calculateCarLoan()">計算月付金</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="calculator-results" id="car-results">
+                        <div class="result-card result-summary">
+                            <h4>每月應還款金額</h4>
+                            <p id="carMonthlyPaymentResult">0 元</p>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        function setupSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.innerHTML = `
+                <div class="sidebar-content">
+                    <h3>選單</h3>
+                    <a href="index1.html" class="active-link">利率計算</a>
+                    <a href="index2.html">通時通數計算器</a>
+                    <a href="index3.html">結清金額試算</a>
+                    <a href="index4.html">存款積數</a>
+                    <a href="index5.html">請款表單</a>
+                    <a href="index6.html">房屋坪數計算器</a>
+                    <a href="index7.html">蛋黃蛋白區查詢</a>
+                </div>
+            `;
+            const sidebarLinks = sidebar.querySelectorAll('a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    const mainSidebar = document.getElementById('sidebar');
+                    if (mainSidebar.classList.contains('active')) {
+                        event.preventDefault();
+                        const destination = link.href;
+                        mainSidebar.classList.remove('active');
+                        setTimeout(() => { window.location.href = destination; }, 300);
+                    }
+                });
+            });
+        }
+
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(item => item.classList.remove('active'));
+                    tab.classList.add('active');
+                    const target = document.getElementById(tab.dataset.tab);
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    target.classList.add('active');
+                });
+            });
+        }
+
+        function formatCurrency(num) { return `${Math.round(num).toLocaleString()} 元`; }
+
+        function calculateCarLoan() {
+            const loanAmount = parseFloat(document.getElementById('carLoanAmount').value);
+            const loanTerm = parseInt(document.getElementById('carLoanTerm').value);
+            const annualInterestRate = parseFloat(document.getElementById('carAnnualInterestRate').value);
+            const resultDiv = document.getElementById('car-results');
+
+            if (isNaN(loanAmount) || isNaN(loanTerm) || isNaN(annualInterestRate) || loanTerm <= 0) {
+                 resultDiv.style.display = 'block';
+                 document.getElementById('carMonthlyPaymentResult').innerText = `請輸入有效數字`;
+                 return;
+            }
+            const monthlyInterestRate = (annualInterestRate / 100) / 12;
+            let monthlyPayment = 0;
+            if (monthlyInterestRate === 0) {
+                monthlyPayment = loanAmount / loanTerm;
+            } else {
+                monthlyPayment = (loanAmount * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -loanTerm));
+            }
+            
+            resultDiv.style.display = 'block';
+            if (isNaN(monthlyPayment) || !isFinite(monthlyPayment)){
+                document.getElementById('carMonthlyPaymentResult').innerText = `輸入有誤`;
+            } else {
+                document.getElementById('carMonthlyPaymentResult').innerText = formatCurrency(monthlyPayment);
+            }
+        }
+
+        let interestChartInstance = null;
+        function calculateMortgage() {
+            const loanAmount = (parseFloat(document.getElementById('mortgageLoanAmount').value) || 0) * 10000;
+            const loanTermYears = parseInt(document.getElementById('mortgageLoanTerm').value) || 0;
+            const annualRate = (parseFloat(document.getElementById('mortgageAnnualInterestRate').value) || 0);
+            const gracePeriodYears = parseInt(document.getElementById('gracePeriod').value) || 0;
+            const method = document.getElementById('repaymentMethod').value;
+            const resultDiv = document.getElementById('mortgage-results');
+            const tableBody = document.getElementById('amortizationTableBody');
+
+            if (!loanAmount || !loanTermYears || !annualRate < 0) {
+                alert("請填寫所有必要的貸款欄位！"); return;
+            }
+            if (gracePeriodYears >= loanTermYears) {
+                alert("寬限期必須小於貸款年限！"); return;
+            }
+
+            const totalMonths = loanTermYears * 12;
+            const monthlyRate = annualRate / 100 / 12;
+            const graceMonths = gracePeriodYears * 12;
+
+            let remainingPrincipal = loanAmount;
+            let totalInterest = 0;
+            let amortizationData = [];
+            let payment1 = 0, payment2 = 0;
+
+            if (method === 'epi') { // 本息平均攤還
+                payment1 = loanAmount * monthlyRate;
+                let postGraceMonths = totalMonths - graceMonths;
+                if (postGraceMonths > 0) {
+                    payment2 = Math.round((loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -postGraceMonths)));
+                }
+                
+                for (let i = 1; i <= totalMonths; i++) {
+                    let interestPaid = Math.round(remainingPrincipal * monthlyRate);
+                    let principalPaid = 0;
+                    let currentPayment = 0;
+                    if (i <= graceMonths) {
+                        currentPayment = interestPaid;
+                        principalPaid = 0;
+                    } else if (i === totalMonths) {
+                        principalPaid = remainingPrincipal;
+                        currentPayment = remainingPrincipal + interestPaid;
+                    } else {
+                        currentPayment = payment2;
+                        principalPaid = currentPayment - interestPaid;
+                    }
+                    remainingPrincipal -= principalPaid;
+                    totalInterest += interestPaid;
+                    amortizationData.push({期數: i, 月付金: currentPayment, 本金: principalPaid, 利息: interestPaid, 餘額: remainingPrincipal});
+                }
+            } else { // 本金平均攤還
+                payment1 = loanAmount * monthlyRate;
+                let postGraceMonths = totalMonths - graceMonths;
+                let principalPerMonth = postGraceMonths > 0 ? Math.round(loanAmount / postGraceMonths) : 0;
+                
+                for (let i = 1; i <= totalMonths; i++) {
+                    let interestPaid = Math.round(remainingPrincipal * monthlyRate);
+                    let principalPaid = 0;
+                    if (i <= graceMonths) {
+                        principalPaid = 0;
+                    } else if (i === totalMonths) {
+                        principalPaid = remainingPrincipal;
+                    } else {
+                        principalPaid = principalPerMonth;
+                    }
+                    if (i === graceMonths + 1) { payment2 = principalPaid + interestPaid; }
+                    remainingPrincipal -= principalPaid;
+                    totalInterest += interestPaid;
+                    amortizationData.push({期數: i, 月付金: principalPaid + interestPaid, 本金: principalPaid, 利息: interestPaid, 餘額: remainingPrincipal});
+                }
+                if (graceMonths === 0) { payment2 = amortizationData[0]?.月付金 || 0; }
+            }
+
+            resultDiv.style.display = 'block';
+            if (graceMonths > 0) {
+                document.getElementById('paymentTitle1').style.display = 'block';
+                document.getElementById('mortgageMonthlyPayment1').parentElement.style.display = 'block';
+                document.getElementById('mortgageMonthlyPayment1').innerText = formatCurrency(payment1);
+                document.getElementById('paymentTitle2').innerText = '寬限期後月付';
+                document.getElementById('mortgageMonthlyPayment2').innerText = (method === 'epi') ? formatCurrency(payment2) : `${formatCurrency(payment2)}起`;
+            } else {
+                document.getElementById('paymentTitle1').style.display = 'none';
+                document.getElementById('mortgageMonthlyPayment1').parentElement.style.display = 'none';
+                document.getElementById('paymentTitle2').innerText = '每月應繳金額';
+                document.getElementById('mortgageMonthlyPayment2').innerText = (method === 'epi') ? formatCurrency(payment2) : `${formatCurrency(amortizationData[0]?.月付金 || 0)}起`;
+            }
+            
+            document.getElementById('totalInterestPaid').innerText = formatCurrency(totalInterest);
+
+            tableBody.innerHTML = amortizationData.map(row => `<tr><td>${row.期數}</td><td>${Math.round(row.月付金).toLocaleString()}</td><td>${Math.round(row.本金).toLocaleString()}</td><td>${Math.round(row.利息).toLocaleString()}</td><td>${Math.round(row.餘額 > 0 ? row.餘額 : 0).toLocaleString()}</td></tr>`).join('');
+
+            const ctx = document.getElementById('interestChart').getContext('2d');
+            if (interestChartInstance) { interestChartInstance.destroy(); }
+            interestChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['貸款本金', '總利息支出'],
+                    datasets: [{
+                        data: [loanAmount, totalInterest],
+                        backgroundColor: ['#007aff', '#ff9f43'],
+                        borderColor: '#fff',
+                        borderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { callbacks: { label: function(context) { let label = context.label || ''; if (label) { label += ': '; } if (context.parsed !== null) { label += new Intl.NumberFormat('zh-TW').format(context.parsed) + ' 元'; } return label; } } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
