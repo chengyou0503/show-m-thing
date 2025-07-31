@@ -199,6 +199,10 @@
         </div>
     </div>
     <script>
+        // --- 禁止滑鼠右鍵選單 ---
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+});
         let commonCounter = 4;
         let items = [
             { id: 'main', item: '主建物', desc: '總面積', area: 0.00, num: 1.00, den: 1.00 },

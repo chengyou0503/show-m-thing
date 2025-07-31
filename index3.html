@@ -220,6 +220,10 @@
   </div>
 
   <script>
+    // --- 禁止滑鼠右鍵選單 ---
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+});
     /* --- 修改 START：換上標準化側邊欄 JavaScript --- */
     document.addEventListener("DOMContentLoaded", function() {
         setupSidebar();

@@ -96,6 +96,10 @@
         </div>
     </div>
     <script>
+        // --- 禁止滑鼠右鍵選單 ---
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+});
         document.addEventListener('DOMContentLoaded', function() {
             setupSidebar();
             document.getElementById('hamburger-menu').addEventListener('click', () => {
