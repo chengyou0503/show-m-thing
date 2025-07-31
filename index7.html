@@ -19,62 +19,252 @@
             --bg-white: #ffffff;
             --card-shadow: 0 8px 25px rgba(44, 62, 80, 0.08);
             --input-shadow-focus: 0 0 0 3px rgba(0, 122, 255, 0.15);
-            --rank-a-color: #ff9f43; --rank-b-color: #1e90ff; 
-            --rank-c-color: #2ecc71; --rank-d-color: #95a5a6;
+            --rank-a-color: #ff9f43; 
+            --rank-b-color: #1e90ff; 
+            --rank-c-color: #2ecc71; 
+            --rank-d-color: #95a5a6;
         }
         body { 
-            font-family: var(--font-family); margin: 0; background-color: var(--bg-light); 
-            display: flex; color: var(--text-dark);
+            font-family: var(--font-family); 
+            margin: 0; 
+            background-color: var(--bg-light); 
+            display: flex; 
+            color: var(--text-dark);
         }
         .sidebar { 
-            width: 250px; background-color: #333; color: white; height: 100vh; position: fixed; 
-            left: 0; top: 0; overflow-y: auto; z-index: 1000; box-sizing: border-box;
-            transform: translateX(-100%); transition: transform 0.3s ease; 
+            width: 230px; 
+            background-color: #333; 
+            color: white; 
+            height: 100vh; 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            overflow-y: auto; 
+            z-index: 1000; 
+            box-sizing: border-box;
+            transform: translateX(-100%); 
+            transition: transform 0.3s ease; 
         }
-        .sidebar.active { transform: translateX(0); }
-        .sidebar-content { padding: 20px; }
-        .sidebar a { color: white; text-decoration: none; display: block; padding: 12px 0; font-size: 18px; }
-        .sidebar a:hover, .sidebar a.active-link { background-color: #575757; }
-        .sidebar h3 { color: white; font-size: 36px; margin: 0 0 10px 0; }
-        .content { margin-left: 0; width: 100%; padding: 50px; box-sizing: border-box; transition: margin-left 0.3s ease; display: flex; flex-direction: column; align-items: center; }
-        #hamburger-menu { display: block; font-size: 28px; background: none; border: none; color: var(--text-dark); padding: 10px; cursor: pointer; position: fixed; top: 10px; left: 10px; z-index: 1100; }
-
-        @media (min-width: 993px) {
-            .content { margin-left: 250px; }
-            .sidebar { transform: translateX(0); }
-            #hamburger-menu { display: none; }
+        .sidebar.active { 
+            transform: translateX(0); 
         }
-        
-        #calculator-wrapper { width: 100%; max-width: 700px; background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); text-align: center;}
-        #calculator-wrapper h1 { text-align: center; color: var(--text-dark); margin-top: 0; font-size: 32px; margin-bottom: 15px; font-weight: 700; }
-        #calculator-wrapper p { color: var(--text-light); margin-top: 0; margin-bottom: 30px; line-height: 1.6; }
-        .search-container { display: flex; gap: 10px; margin-bottom: 30px; }
-        #address-input { flex-grow: 1; padding: 15px; border: 1px solid var(--border-color); background-color: var(--bg-white); border-radius: 8px; font-family: inherit; font-size: 16px; transition: border-color 0.2s, box-shadow 0.2s; }
-        #address-input:focus { border-color: var(--primary-color); box-shadow: var(--input-shadow-focus); outline: none; }
-        #search-btn { padding: 0 30px; font-size: 16px; font-weight: 500; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s, transform 0.2s; }
-        #search-btn:hover { background-color: var(--primary-hover-color); transform: translateY(-2px); }
-        #result-display { text-align: left; margin-top: 20px; background-color: var(--bg-white); border-radius: 12px; border: 1px solid var(--border-color); border-left-width: 5px; border-left-color: transparent; box-shadow: 0 4px 15px rgba(44, 62, 80, 0.05); opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease, border-left-color 0.4s ease; display: none; padding: 30px; }
-        #result-display.visible { display: block; opacity: 1; transform: translateY(0); }
-        #result-display.rank-A { border-left-color: var(--rank-a-color); } #result-display.rank-B { border-left-color: var(--rank-b-color); }
-        #result-display.rank-C { border-left-color: var(--rank-c-color); } #result-display.rank-D { border-left-color: var(--rank-d-color); }
-        .result-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .result-rank { font-size: 48px; font-weight: 700; line-height: 1; }
-        .result-rank.rank-A { color: var(--rank-a-color); } .result-rank.rank-B { color: var(--rank-b-color); }
-        .result-rank.rank-C { color: var(--rank-c-color); } .result-rank.rank-D { color: var(--rank-d-color); }
-        .result-title { font-size: 24px; font-weight: 700; margin: 0;}
-        .result-subtitle { font-size: 18px; color: var(--text-light); margin: 0; }
-        .result-description { font-size: 16px; line-height: 1.7; color: var(--text-dark); }
-        .not-found { color: var(--danger-color); font-weight: 500;}
+        .sidebar-content { 
+            padding: 20px; 
+        }
+        .sidebar a { 
+            color: white; 
+            text-decoration: none; 
+            display: block; 
+            padding: 12px 0; 
+            font-size: 18px; 
+        }
+        .sidebar a:hover, .sidebar a.active-link { 
+            background-color: #575757; 
+        }
+        .sidebar h3 { 
+            color: white; 
+            font-size: 36px; 
+            margin: 0 0 10px 0; 
+        }
+        .content { 
+            margin-left: 0; 
+            width: 100%; 
+            padding: 20px 10px; 
+            box-sizing: border-box; 
+            transition: margin-left 0.3s ease; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        #hamburger-menu { 
+            display: block; 
+            font-size: 28px; 
+            background: none; 
+            border: none; 
+            color: var(--text-dark); 
+            padding: 10px; 
+            cursor: pointer; 
+            position: fixed; 
+            top: 10px; 
+            left: 10px; 
+            z-index: 1100; 
+        }
 
-        @media (max-width: 992px) {
-            .content { padding: 20px 10px; }
-            #calculator-wrapper { padding: 20px 15px; box-shadow: none; border: none; border-radius: 0; }
-            #calculator-wrapper h1 { font-size: 26px; }
-            .search-container { flex-direction: column; }
-            #search-btn { padding: 15px; }
-            #result-display { padding: 20px; }
-            .result-header { flex-direction: column; align-items: flex-start; gap: 5px; margin-bottom: 15px; }
-            .result-rank { font-size: 36px; } .result-title { font-size: 22px; } .result-subtitle { font-size: 16px; }
+        #calculator-wrapper { 
+            width: 100%; 
+            max-width: 700px; 
+            background: var(--bg-white); 
+            padding: 20px 15px; 
+            border-radius: 0; 
+            box-shadow: none; 
+            border: none; 
+            text-align: center;
+        }
+        #calculator-wrapper h1 { 
+            text-align: center; 
+            color: var(--text-dark); 
+            margin-top: 0; 
+            font-size: 26px; 
+            margin-bottom: 15px; 
+            font-weight: 700; 
+        }
+        #calculator-wrapper p { 
+            color: var(--text-light); 
+            margin-top: 0; 
+            margin-bottom: 30px; 
+            line-height: 1.6; 
+        }
+        .search-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            margin-bottom: 30px; 
+        }
+        .address-input { 
+            flex-grow: 1; 
+            padding: 15px; 
+            border: 1px solid var(--border-color); 
+            background-color: var(--bg-white); 
+            border-radius: 8px; 
+            font-family: inherit; 
+            font-size: 16px; 
+            transition: border-color 0.2s, box-shadow 0.2s; 
+        }
+        .address-input:focus { 
+            border-color: var(--primary-color); 
+            box-shadow: var(--input-shadow-focus); 
+            outline: none; 
+        }
+        #search-btn { 
+            padding: 15px; 
+            font-size: 16px; 
+            font-weight: 500; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: background-color 0.2s, transform 0.2s; 
+        }
+        #search-btn:hover { 
+            background-color: var(--primary-hover-color); 
+            transform: translateY(-2px); 
+        }
+        #result-display { 
+            text-align: left; 
+            margin-top: 20px; 
+            background-color: var(--bg-white); 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            border-left-width: 5px; 
+            border-left-color: transparent; 
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.05); 
+            opacity: 0; 
+            transform: translateY(20px); 
+            transition: opacity 0.4s ease, transform 0.4s ease, border-left-color 0.4s ease; 
+            display: none; 
+            padding: 20px; 
+        }
+        #result-display.visible { 
+            display: block; 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        #result-display.rank-A { border-left-color: var(--rank-a-color); } 
+        #result-display.rank-B { border-left-color: var(--rank-b-color); }
+        #result-display.rank-C { border-left-color: var(--rank-c-color); } 
+        #result-display.rank-D { border-left-color: var(--rank-d-color); }
+        .result-header { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; 
+            gap: 5px; 
+            margin-bottom: 15px; 
+        }
+        .result-rank { 
+            font-size: 36px; 
+            font-weight: 700; 
+            line-height: 1; 
+        }
+        .result-rank.rank-A { color: var(--rank-a-color); } 
+        .result-rank.rank-B { color: var(--rank-b-color); }
+        .result-rank.rank-C { color: var(--rank-c-color); } 
+        .result-rank.rank-D { color: var(--rank-d-color); }
+        .result-title { 
+            font-size: 22px; 
+            font-weight: 700; 
+            margin: 0;
+        }
+        .result-subtitle { 
+            font-size: 16px; 
+            color: var(--text-light); 
+            margin: 0; 
+        }
+        .result-description { 
+            font-size: 16px; 
+            line-height: 1.7; 
+            color: var(--text-dark); 
+        }
+        .not-found { 
+            color: var(--danger-color); 
+            font-weight: 500;
+        }
+
+        /* Medium devices (tablets, 768px and up) */
+        @media (min-width: 768px) {
+            .content {
+                padding: 50px;
+            }
+            #calculator-wrapper {
+                padding: 40px;
+                border-radius: 16px;
+                box-shadow: var(--card-shadow);
+                border: 1px solid var(--border-color);
+            }
+            #calculator-wrapper h1 {
+                font-size: 32px;
+            }
+            .search-container {
+                flex-direction: row;
+            }
+            #search-btn {
+                padding: 0 30px;
+            }
+            #result-display {
+                padding: 30px;
+            }
+            .result-header {
+                flex-direction: row;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            .result-rank {
+                font-size: 48px;
+            }
+            .result-title {
+                font-size: 24px;
+            }
+            .result-subtitle {
+                font-size: 18px;
+            }
+        }
+
+        /* Large devices (desktops, 992px and up) */
+        @media (min-width: 992px) {
+            .content { 
+                margin-left: 230px; 
+            }
+            .sidebar { 
+                transform: translateX(0); 
+            }
+            #hamburger-menu { 
+                display: none; 
+            }
         }
     </style>
 </head>
@@ -85,21 +275,19 @@
         <div id="calculator-wrapper">
             <h1>台灣房市蛋黃蛋白區查詢</h1>
             <p>輸入您想查詢的地址，系統將根據資料庫分析該地區的分級。</p>
-            <div class="search-container">
-                <input type="text" id="address-input" placeholder="例如：臺北市信義區">
-                <button id="search-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <span>查詢</span>
-                </button>
+            <div class="search-container" style="flex-direction: column; align-items: stretch;">
+                <select id="city-select" class="address-input" style="margin-bottom: 10px; padding: 15px;"></select>
+                <select id="district-select" class="address-input" style="padding: 15px;"></select>
+                
             </div>
             <div id="result-display"></div>
         </div>
     </div>
     <script>
         // --- 禁止滑鼠右鍵選單 ---
-document.addEventListener('contextmenu', function(event) {
-    event.preventDefault();
-});
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
         document.addEventListener('DOMContentLoaded', function() {
             setupSidebar();
             document.getElementById('hamburger-menu').addEventListener('click', () => {
@@ -136,41 +324,96 @@ document.addEventListener('contextmenu', function(event) {
         }
         
         function setupSearch() {
-            const regionData = { "中正區": "A", "大同區": "A", "中山區": "B", "松山區": "A", "大安區": "A", "萬華區": "A", "信義區": "C", "士林區": "A", "北投區": "A", "內湖區": "A", "南港區": "A", "文山區": "A", "萬里": "D", "金山": "D", "板橋": "A", "汐止": "A", "深坑": "C", "石碇": "D", "瑞芳": "C", "平溪": "D", "雙溪": "D", "貢寮": "D", "新店": "A", "坪林": "D", "烏來": "D", "永和": "A", "中和": "A", "土城": "A", "三峽": "B", "樹林": "B", "鶯歌": "C", "三重": "A", "新莊": "A", "泰山": "B", "林口": "B", "蘆洲": "A", "五股": "B", "八里": "C", "淡水": "B", "三芝": "D", "石門": "D", "仁愛區": "B", "安樂區": "C", "暖暖區": "B", "七堵區": "B", "中壢": "B", "平鎮": "B", "龍潭": "C", "楊梅": "C", "新屋": "C", "觀音": "C", "桃園區": "B", "龜山": "B", "八德": "B", "大溪": "C", "復興": "D", "大園": "C", "蘆竹": "B", "竹北": "A", "湖口": "B", "新豐": "B", "新埔": "B", "關西": "C", "芎林": "B", "宝山": "B", "竹東": "B", "五峰": "D", "橫山": "C", "尖石": "D", "北埔": "C", "峨眉": "D", "新竹市": "A", "宜蘭": "B", "頭城": "C", "礁溪": "B", "壯圍": "C", "員山": "B", "羅東": "B", "三星": "C", "大同": "D", "五結": "B", "冬山": "C", "蘇澳": "C", "南澳": "D", "竹南": "B", "頭份": "B", "三灣": "D", "南庄": "D", "獅潭": "D", "後龍": "C", "通霄": "D", "苑裡": "C", "苗栗": "C", "造橋": "D", "頭屋": "D", "公館": "C", "大湖": "D", "泰安": "D", "銅鑼": "C", "三義": "D", "西湖": "D", "卓蘭": "D", "中區": "B", "東區": "B", "南區": "A", "西區": "A", "北區": "A", "北屯區": "A", "西屯區": "A", "南屯區": "A", "太平": "A", "大里": "A", "霧峰": "C", "烏日": "B", "豐原": "A", "后里": "C", "石岡": "D", "東勢": "B", "和平": "D", "新社": "D", "潭子": "B", "大雅": "B", "神岡": "B", "大肚": "D", "沙鹿": "B", "龍井": "B", "梧棲": "B", "清水": "B", "大甲": "B", "外埔": "C", "大安": "D", "彰化": "B", "芬園": "C", "花壇": "C", "秀水": "B", "鹿港": "C", "福興": "C", "線西": "B", "和美": "B", "伸港": "C", "員林": "B", "社頭": "C", "永靖": "C", "埔心": "B", "溪湖": "C", "大村": "C", "埔鹽": "C", "田中": "C", "北斗": "C", "田尾": "C", "埤頭": "C", "溪州": "C", "竹塘": "D", "二林": "C", "大城": "D", "芳苑": "D", "二水": "D", "南投": "B", "中寮": "D", "草屯": "B", "國姓": "D", "埔里": "B", "仁愛": "D", "名間": "C", "集集": "D", "水里": "D", "魚池": "B", "信義": "D", "竹山": "C", "鹿谷": "B", "斗南": "B", "大埤": "C", "虎尾": "B", "土庫": "C", "褒忠": "D", "臺西": "D", "崙背": "D", "麥寮": "C", "斗六": "B", "林內": "C", "古坑": "D", "莿桐": "B", "西螺": "B", "二崙": "D", "北港": "C", "水林": "D", "口湖": "D", "四湖": "D", "元長": "D", "番路": "C", "梅山": "C", "竹崎": "D", "阿里山": "D", "中埔": "B", "大埔": "D", "水上": "B", "鹿草": "D", "太保": "B", "朴子": "B", "東石": "D", "六腳": "D", "新港": "B", "民雄": "B", "大林": "B", "溪口": "D", "義竹": "B", "布袋": "D", "嘉義市": "B", "中西區": "A", "東區": "A", "南區": "A", "北區": "A", "安平區": "A", "安南區": "A", "永康": "A", "歸仁": "B", "新化": "C", "左鎮": "D", "玉井": "D", "楠西": "D", "南化": "D", "仁德": "B", "關廟": "D", "龍崎": "D", "官田": "D", "麻豆": "B", "佳里": "B", "西港": "D", "七股": "D", "將軍": "D", "學甲": "C", "北門": "D", "新營": "B", "後壁": "D", "白河": "D", "東山": "D", "六甲": "D", "下營": "D", "柳營": "D", "鹽水": "C", "善化": "B", "大內": "D", "山上": "D", "新市": "C", "安定": "C", "新興區": "A", "前金區": "A", "苓雅區": "A", "鹽埕區": "B", "鼓山區": "A", "旗津區": "D", "前鎮區": "A", "三民區": "A", "楠梓區": "A", "小港區": "B", "左營區": "A", "仁武區": "B", "大社": "C", "岡山": "B", "路竹": "C", "阿蓮": "D", "田寮": "D", "燕巢": "D", "橋頭": "C", "梓官": "D", "彌陀": "D", "永安": "D", "湖內": "D", "鳳山": "B", "大寮": "C", "林園": "C", "鳥松": "B", "大樹": "D", "旗山": "D", "美濃": "D", "六龜": "D", "內門": "D", "杉林": "D", "甲仙": "D", "桃源": "D", "那瑪夏": "D", "茂林": "D", "茄萣": "D", "屏東": "B", "三地門": "D", "霧臺": "D", "瑪家": "D", "九如": "B", "里港": "B", "高樹": "D", "鹽埔": "C", "長治": "B", "麟洛": "B", "竹田": "C", "內埔": "C", "萬丹": "B", "潮州": "B", "泰武": "D", "來義": "D", "萬巒": "D", "崁頂": "D", "新埤": "D", "南州": "C", "林邊": "D", "東港": "C", "琉球": "D", "佳冬": "B", "新園": "D", "枋寮": "D", "枋山": "D", "春日": "D", "獅子": "D", "車城": "D", "牡丹": "D", "恆春": "C", "滿州": "D", "花蓮": "B", "新城": "B", "秀林": "D", "吉安": "C", "壽豐": "C", "鳳林": "D", "光復": "D", "豐濱": "D", "瑞穗": "D", "萬榮": "D", "玉里": "C", "卓溪": "D", "富里": "D", "臺東": "B", "綠島": "D", "蘭嶼": "D", "延平": "D", "卑南": "C", "鹿野": "D", "關山": "D", "海端": "D", "池上": "C", "東河": "D", "成功": "D", "長濱": "D", "太麻里": "C", "金峰": "D", "大武": "D", "達仁": "D", "馬公": "C", "西嶼": "D", "望安": "D", "七美": "D", "白沙": "D", "湖西": "D", "金沙": "D", "金湖": "D", "金寧": "D", "金城": "D", "烈嶼": "D", "烏坵": "D", "南竿": "D", "北竿": "D", "莒光": "D", "東引": "D", "東沙": "D", "南沙": "D" };
+            const cityData = {
+    "臺北市": {"中正區":"A", "大同區":"A", "中山區":"A", "松山區":"A", "大安區":"A", "萬華區":"A", "信義區":"A", "士林區":"A", "北投區":"A", "內湖區":"A", "南港區":"A", "文山區":"A"},
+    "新北市": {"萬里區":"D", "金山區":"D", "板橋區":"A", "汐止區":"A", "深坑區":"C", "石碇區":"D", "瑞芳區":"C", "平溪區":"D", "雙溪區":"D", "貢寮區":"D", "新店區":"A", "坪林區":"D", "烏來區":"D", "永和區":"A", "中和區":"A", "土城區":"A", "三峽區":"B", "樹林區":"B", "鶯歌區":"C", "三重區":"A", "新莊區":"A", "泰山區":"B", "林口區":"B", "蘆洲區":"A", "五股區":"B", "八里區":"C", "淡水區":"B", "三芝區":"D", "石門區":"D"},
+    "基隆市": {"仁愛區":"B", "信義區":"C", "中正區":"C", "中山區":"B", "安樂區":"C", "暖暖區":"B", "七堵區":"B"},
+    "桃園市": {"中壢區":"B", "平鎮區":"B", "龍潭區":"C", "楊梅區":"C", "新屋區":"C", "觀音區":"C", "桃園區":"B", "龜山區":"B", "八德區":"B", "大溪區":"C", "復興區":"D", "大園區":"C", "蘆竹區":"B"},
+    "新竹縣": {"竹北市":"A", "湖口鄉":"B", "新豐鄉":"B", "新埔鎮":"B", "關西鎮":"C", "芎林鄉":"B", "寶山鄉":"B", "竹東鎮":"B", "五峰鄉":"D", "橫山鄉":"C", "尖石鄉":"D", "北埔鄉":"C", "峨眉鄉":"D"},
+    "新竹市": {"新竹市":"A"},
+    "苗栗縣": {"竹南鎮":"B", "頭份市":"B", "三灣鄉":"D", "南庄鄉":"D", "獅潭鄉":"D", "後龍鎮":"C", "通霄鎮":"D", "苑裡鎮":"C", "苗栗市":"C", "造橋鄉":"D", "頭屋鄉":"D", "公館鄉":"C", "大湖鄉":"D", "泰安鄉":"D", "銅鑼鄉":"C", "三義鄉":"D", "西湖鄉":"D", "卓蘭鎮":"D"},
+    "臺中市": {"中區":"B", "東區":"B", "南區":"A", "西區":"A", "北區":"A", "北屯區":"A", "西屯區":"A", "南屯區":"A", "太平區":"B", "大里區":"A", "霧峰區":"C", "烏日區":"B", "豐原區":"A", "后里區":"C", "石岡區":"D", "東勢區":"B", "和平區":"D", "新社區":"D", "潭子區":"B", "大雅區":"B", "神岡區":"B", "大肚區":"D", "沙鹿區":"B", "龍井區":"B", "梧棲區":"B", "清水區":"B", "大甲區":"B", "外埔區":"C", "大安區":"D"},
+    "彰化縣": {"彰化市":"B", "芬園鄉":"C", "花壇鄉":"C", "秀水鄉":"B", "鹿港鎮":"C", "福興鄉":"C", "線西鄉":"B", "和美鎮":"B", "伸港鄉":"C", "員林市":"B", "社頭鄉":"C", "永靖鄉":"C", "埔心鄉":"B", "溪湖鎮":"C", "大村鄉":"C", "埔鹽鄉":"C", "田中鎮":"C", "北斗鎮":"C", "田尾鄉":"C", "埤頭鄉":"C", "溪州鄉":"C", "竹塘鄉":"D", "二林鎮":"C", "大城鄉":"D", "芳苑鄉":"D", "二水鄉":"D"},
+    "南投縣": {"南投市":"B", "中寮鄉":"D", "草屯鎮":"B", "國姓鄉":"D", "埔里鎮":"B", "仁愛鄉":"D", "名間鄉":"C", "集集鎮":"D", "水里鄉":"D", "魚池鄉":"B", "信義鄉":"D", "竹山鎮":"C", "鹿谷鄉":"B"},
+    "雲林縣": {"斗南鎮":"B", "大埤鄉":"C", "虎尾鎮":"B", "土庫鎮":"C", "褒忠鄉":"D", "東勢鄉":"D", "臺西鄉":"D", "崙背鄉":"D", "麥寮鄉":"C", "斗六市":"B", "林內鄉":"C", "古坑鄉":"D", "莿桐鄉":"B", "西螺鎮":"B", "二崙鄉":"D", "北港鎮":"C", "水林鄉":"D", "口湖鄉":"D", "四湖鄉":"D", "元長鄉":"D"},
+    "嘉義縣": {"番路鄉":"C", "梅山鄉":"C", "竹崎鄉":"D", "阿里山鄉":"D", "中埔鄉":"B", "大埔鄉":"D", "水上鄉":"B", "鹿草鄉":"D", "太保市":"B", "朴子市":"B", "東石鄉":"D", "六腳鄉":"D", "新港鄉":"B", "民雄鄉":"B", "大林鎮":"B", "溪口鄉":"D", "義竹鄉":"B", "布袋鎮":"D"},
+    "嘉義市": {"嘉義市":"B"},
+    "臺南市": {"中西區":"A", "東區":"A", "南區":"A", "北區":"A", "安平區":"A", "安南區":"A", "永康區":"A", "歸仁區":"B", "新化區":"C", "左鎮區":"D", "玉井區":"D", "楠西區":"D", "南化區":"D", "仁德區":"B", "關廟區":"D", "龍崎區":"D", "官田區":"D", "麻豆區":"B", "佳里區":"B", "西港區":"D", "七股區":"D", "將軍區":"D", "學甲區":"C", "北門區":"D", "新營區":"B", "後壁區":"D", "白河區":"D", "東山區":"D", "六甲區":"D", "下營區":"D", "柳營區":"D", "鹽水區":"C", "善化區":"B", "大內區":"D", "山上區":"D", "新市區":"C", "安定區":"C"},
+    "高雄市": {"新興區":"A", "前金區":"A", "苓雅區":"A", "鹽埕區":"B", "鼓山區":"A", "旗津區":"D", "前鎮區":"A", "三民區":"A", "楠梓區":"A", "小港區":"B", "左營區":"A", "仁武區":"B", "大社區":"C", "岡山區":"B", "路竹區":"C", "阿蓮區":"D", "田寮區":"D", "燕巢區":"D", "橋頭區":"C", "梓官區":"D", "彌陀區":"D", "永安區":"D", "湖內區":"D", "鳳山區":"B", "大寮區":"C", "林園區":"C", "鳥松區":"B", "大樹區":"D", "旗山區":"D", "美濃區":"D", "六龜區":"D", "內門區":"D", "杉林區":"D", "甲仙區":"D", "桃源區":"D", "那瑪夏區":"D", "茂林區":"D", "茄萣區":"D"},
+    "屏東縣": {"屏東市":"B", "三地門鄉":"D", "霧臺鄉":"D", "瑪家鄉":"D", "九如鄉":"B", "里港鄉":"B", "高樹鄉":"D", "鹽埔鄉":"C", "長治鄉":"B", "麟洛鄉":"B", "竹田鄉":"C", "內埔鄉":"C", "萬丹鄉":"B", "潮州鎮":"B", "泰武鄉":"D", "來義鄉":"D", "萬巒鄉":"D", "崁頂鄉":"D", "新埤鄉":"D", "南州鄉":"C", "林邊鄉":"D", "東港鎮":"C", "琉球鄉":"D", "佳冬鄉":"B", "新園鄉":"D", "枋寮鄉":"D", "枋山鄉":"D", "春日鄉":"D", "獅子鄉":"D", "車城鄉":"D", "牡丹鄉":"D", "恆春鎮":"C", "滿州鄉":"D"},
+    "宜蘭縣": {"宜蘭市":"B", "頭城鎮":"C", "礁溪鄉":"B", "壯圍鄉":"C", "員山鄉":"B", "羅東鎮":"B", "三星鄉":"C", "大同鄉":"D", "五結鄉":"B", "冬山鄉":"C", "蘇澳鎮":"C", "南澳鄉":"D"},
+    "花蓮縣": {"花蓮市":"B", "新城鄉":"B", "秀林鄉":"D", "吉安鄉":"C", "壽豐鄉":"C", "鳳林鎮":"D", "光復鄉":"D", "豐濱鄉":"D", "瑞穗鄉":"D", "萬榮鄉":"D", "玉里鎮":"C", "卓溪鄉":"D", "富里鄉":"D"},
+    "臺東縣": {"臺東市":"B", "綠島鄉":"D", "蘭嶼鄉":"D", "延平鄉":"D", "卑南鄉":"C", "鹿野鄉":"D", "關山鎮":"D", "海端鄉":"D", "池上鄉":"C", "東河鄉":"D", "成功鎮":"D", "長濱鄉":"D", "太麻里鄉":"C", "金峰鄉":"D", "大武鄉":"D", "達仁鄉":"D"},
+    "澎湖縣": {"馬公市":"C", "西嶼鄉":"D", "望安鄉":"D", "七美鄉":"D", "白沙鄉":"D", "湖西鄉":"D"},
+    "金門縣": {"金沙鎮":"D", "金湖鎮":"D", "金寧鄉":"D", "金城鎮":"D", "烈嶼鄉":"D", "烏坵鄉":"D"},
+    "連江縣": {"南竿鄉":"D", "北竿鄉":"D", "莒光鄉":"D", "東引鄉":"D"},
+    "南海諸島": {"東沙":"D", "南沙":"D"}
+};
             const classificationMap = {
                 'A': { type: '蛋黃區', rank: 'A級', description: '市中心核心地段，商業機能與交通網路最為發達，房價與生活成本的最高點。' },
                 'B': { type: '蛋白區', rank: 'B級', description: '鄰近市中心的成熟住宅區，擁有完整的學校、市場等生活機能，是宜居的熱門選擇。' },
                 'C': { type: '蛋白區', rank: 'C級', description: '位於市郊的潛力發展區，通常有重劃區或科學園區等題材，交通便利，房價相對親民。' },
                 'D': { type: '蛋殼區', rank: 'D級', description: '市郊以外的區域，多為觀光、農業或自然保育區，享受悠閒的生活步調與自然景觀。' }
             };
-            const input = document.getElementById('address-input');
-            const btn = document.getElementById('search-btn');
+
+            const citySelect = document.getElementById('city-select');
+            const districtSelect = document.getElementById('district-select');
             const resultDisplay = document.getElementById('result-display');
-            const performSearch = () => {
-                const query = input.value.trim();
-                if (!query) return;
-                let found = false;
-                const sortedKeys = Object.keys(regionData).sort((a, b) => b.length - a.length);
-                for (const district of sortedKeys) {
-                    if (query.includes(district)) {
-                        const rank = regionData[district];
-                        const info = classificationMap[rank];
-                        resultDisplay.innerHTML = `<div class="result-header"><div class="result-rank rank-${rank}">${rank}</div><div><h2 class="result-title">${district}</h2><h3 class="result-subtitle">${info.type} / ${info.rank}</h3></div></div><p class="result-description">${info.description}</p>`;
-                        resultDisplay.className = 'visible';
-                        resultDisplay.classList.add(`rank-${rank}`);
-                        found = true;
-                        break;
+
+            // Populate city dropdown
+            citySelect.innerHTML = '<option value="">請選擇縣市</option>';
+            for (const city in cityData) {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            }
+
+            // Populate district dropdown based on city selection
+            citySelect.addEventListener('change', () => {
+                const selectedCity = citySelect.value;
+                districtSelect.innerHTML = '<option value="">請選擇鄉鎮市區</option>';
+                resultDisplay.className = '';
+                if (selectedCity && cityData[selectedCity]) {
+                    districtSelect.disabled = false;
+                    for (const district in cityData[selectedCity]) {
+                        const option = document.createElement('option');
+                        option.value = district;
+                        option.textContent = district;
+                        districtSelect.appendChild(option);
                     }
+                } else {
+                    districtSelect.disabled = true;
                 }
-                if (!found) {
-                    resultDisplay.innerHTML = `<p class="not-found">抱歉，在資料庫中找不到您輸入的地區資訊。請確認縣市與鄉鎮市區名稱是否正確。</p>`;
+                 performSearch(); // Reset search on city change
+            });
+
+            const performSearch = () => {
+                const selectedCity = citySelect.value;
+                const selectedDistrict = districtSelect.value;
+
+                if (!selectedCity || !selectedDistrict || selectedDistrict === "") {
+                    resultDisplay.className = '';
+                    resultDisplay.innerHTML = '';
+                    return;
+                }
+
+                const rank = cityData[selectedCity][selectedDistrict];
+                const info = classificationMap[rank];
+                
+                if (rank && info) {
+                    resultDisplay.innerHTML = `<div class="result-header"><div class="result-rank rank-${rank}">${rank}</div><div><h2 class="result-title">${selectedCity} ${selectedDistrict}</h2><h3 class="result-subtitle">${info.type} / ${info.rank}</h3></div></div><p class="result-description">${info.description}</p>`;
+                    resultDisplay.className = 'visible';
+                    resultDisplay.classList.add(`rank-${rank}`);
+                } else {
+                    resultDisplay.innerHTML = `<p class="not-found">抱歉，在資料庫中找不到您所選地區的資訊。</p>`;
                     resultDisplay.className = 'visible';
                 }
             };
-            btn.addEventListener('click', performSearch);
-            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { performSearch(); } });
+
+            districtSelect.addEventListener('change', performSearch);
+            districtSelect.disabled = true; // Initially disable district select
         }
     </script>
 </body>
 </html>
-}

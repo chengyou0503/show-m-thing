@@ -7,6 +7,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // --- 頁面有效期限控制 ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設定到期日 (年, 月, 日)。JavaScript月份從0開始 (7代表8月)
+            const expiryDate = new Date(2025, 7, 2); // 到期日: 2025年8月2日
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // 為精確比較，將今天的時間設為午夜
+
+            if (today >= expiryDate) {
+                // 如果已過期，就替換整個頁面內容
+                document.body.innerHTML = `
+                    <style>
+                        body { display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Noto Sans TC', sans-serif; background-color: #f0f2f5; color: #333; text-align: center; margin: 0; padding: 20px;}
+                        .container { max-width: 500px; padding: 40px; background: #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+                        h1 { font-size: 24px; color: #e74c3c; }
+                        p { font-size: 16px; line-height: 1.6; }
+                    </style>
+                    <div class="container">
+                        <h1>此頁面已無法存取</h1>
+                        <p>感謝您的預覽，此頁面的存取權限已到期。若有任何疑問，請與我們聯繫。</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+
     <style>
         :root {
             --font-family: 'Noto Sans TC', sans-serif;
@@ -31,9 +58,23 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+
+        #hamburger-menu {
+            display: block;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            padding: 10px;
+            cursor: pointer;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1100;
+        }
         
         .sidebar { 
-            width: 250px; 
+            width: 230px; 
             background-color: #333; 
             color: white; 
             height: 100vh; 
@@ -71,18 +112,6 @@
     
         .content { margin-left: 0; width: 100%; padding: 50px; box-sizing: border-box; transition: margin-left 0.3s ease; display: flex; flex-direction: column; align-items: center; }
         
-        @media (min-width: 993px) {
-            .content {
-                margin-left: 250px;
-            }
-            .sidebar {
-                transform: translateX(0);
-            }
-            #hamburger-menu {
-                display: none;
-            }
-        }
-    
         #calculator-wrapper { width: 100%; max-width: 900px; background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
         #calculator-wrapper h1 { text-align: center; color: var(--text-dark); margin-top: 0; font-size: 32px; margin-bottom: 30px; font-weight: 700; }
         
@@ -119,33 +148,113 @@
         #total-ping, #total-ping-no-parking { color: var(--primary-color); } 
         #common-area-ratio { color: var(--danger-color); }
         
-        #hamburger-menu { display: block; }
+        @media (min-width: 993px) {
+            .content {
+                margin-left: 230px;
+            }
+            .sidebar {
+                transform: translateX(0);
+            }
+            #hamburger-menu {
+                display: none;
+            }
+        }
     
         @media (max-width: 992px) {
             .content { padding: 20px 10px; }
             #calculator-wrapper { padding: 20px 0; box-shadow: none; border: none; border-radius: 0; }
-            #hamburger-menu { font-size: 28px; background: none; border: none; color: var(--text-dark); padding: 10px; cursor: pointer; position: fixed; top: 10px; left: 10px; z-index: 1100; }
             #calculator-wrapper h1 { font-size: 24px; margin-bottom: 20px; padding: 0 20px; }
             .summary-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 25px; padding: 0 20px; }
             .summary-item { flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; border-radius: 10px;}
             .summary-label { font-size: 14px; margin-bottom: 0; }
             .summary-value { font-size: 18px; }
         }
+
+        /* --- RWD 優化：手機版表格堆疊樣式 --- */
+        @media (max-width: 768px) {
+            .calc-table-container {
+                overflow-x: hidden; /* 在堆疊模式下隱藏水平捲動 */
+            }
+            .calc-table {
+                min-width: 100%; /* 表格不再需要最小寬度 */
+            }
+            .calc-table thead {
+                /* 隱藏傳統的表格標頭 */
+                display: none;
+            }
+
+            .calc-table tr {
+                display: block; /* 讓每一行變成一個區塊 */
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                margin-bottom: 20px;
+                padding: 10px;
+            }
+
+            .calc-table td {
+                display: block; /* 讓儲存格垂直堆疊 */
+                text-align: right; /* 讓內容靠右 */
+                padding: 12px 5px;
+                border-bottom: 1px solid #f0f0f0;
+                position: relative;
+                white-space: normal; /* 允許文字換行 */
+            }
+
+            .calc-table td:last-child {
+                border-bottom: none; /* 最後一格不用底線 */
+            }
+
+            .calc-table td::before {
+                /* 透過 data-label 產生假的標題 */
+                content: attr(data-label);
+                position: absolute;
+                left: 5px;
+                font-weight: 500;
+                color: var(--text-light);
+                text-align: left;
+            }
+            
+            .calc-table td.item-label {
+                background-color: var(--bg-light);
+                font-weight: 700;
+                font-size: 16px;
+                border-radius: 8px 8px 0 0;
+                margin: -10px -10px 10px -10px;
+                padding: 12px 15px;
+                text-align: left;
+            }
+            .calc-table td.item-label::before {
+                display: none; /* 項目這格不需要假標題 */
+            }
+
+            .calc-table input[type="number"] {
+                /* 讓輸入框不要佔滿整行 */
+                width: 50%;
+                min-width: 120px;
+            }
+
+            .add-row td {
+                padding: 15px 0 5px 0 !important;
+                border: none;
+                text-align: center;
+            }
+            .add-btn {
+                width: 44px; /* 加大觸控範圍 */
+                height: 44px;
+                line-height: 44px;
+                font-size: 28px;
+            }
+            
+            /* 優化下方總計區，在較大手機上變兩欄 */
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
     <button id="hamburger-menu">&#9776;</button>
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-content">
-            <h3>選單</h3>
-            <a href="index.html">利率計算</a>
-            <a href="index1.html">通時通數計算器</a>
-            <a href="index2.html">結清金額試算</a>
-            <a href="index3.html">存款積數</a>
-            <a href="index4.html">請款表單</a>
-            <a href="index5.html">房屋坪數計算器</a>
-            <a href="index6.html" class="active-link">蛋黃蛋白區查詢</a>
-        </div>
     </div>
     <div class="content">
         <div id="calculator-wrapper">
@@ -195,9 +304,6 @@
     </div>
     <script>
 
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
-        });
 
         let commonCounter = 4;
         let items = [
@@ -231,6 +337,7 @@
             document.getElementById('add-common-btn').addEventListener('click', addCommonRow);
         }
 
+        // 【RWD 優化】已更新此函式，為 <td> 加上 data-label 屬性
         function createRowHtml(i) {
             return `
                 <tr>
@@ -253,34 +360,46 @@
                 </tr>`;
         }
 
-        function addCommonRow() {
+function addCommonRow() {
             commonCounter++;
             const newId = 'common' + commonCounter;
             const newItem = { id: newId, item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 };
             items.push(newItem);
             const tableBody = document.getElementById('calc-table-body');
             const addButtonRow = tableBody.querySelector('.add-row');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = createRowHtml(newItem).trim();
-            tableBody.insertBefore(newRow.firstChild, addButtonRow);
+
+            // 修正：使用 insertAdjacentHTML 將 createRowHtml 產生的完整 <tr> 字串
+            // 插入到「新增按鈕列」(.add-row) 的前面。
+            // 這樣可以確保整列都被正確新增。
+            addButtonRow.insertAdjacentHTML('beforebegin', createRowHtml(newItem));
+            
+            // 重新綁定事件監聽器，確保新產生的輸入框也能觸發計算
+            const newRowInputs = document.querySelectorAll(`#area-${newId}, #num-${newId}, #den-${newId}`);
+            newRowInputs.forEach(input => {
+                input.addEventListener('input', calculateAll);
+                input.addEventListener('focus', function() { this.select(); });
+            });
+
             calculateAll();
         }
         
         function setupSidebar() {
-            const sidebar = document.querySelector('.sidebar .sidebar-content');
+            const sidebar = document.getElementById('sidebar');
             sidebar.innerHTML = `
+                <div class="sidebar-content">
                     <h3>選單</h3>
                     <a href="index1.html">利率計算</a>
                     <a href="index2.html">通時通數計算器</a>
                     <a href="index3.html">結清金額試算</a>
                     <a href="index4.html">存款積數</a>
                     <a href="index5.html">請款表單</a>
-                    <a href="index6.html">房屋坪數計算器</a>
+                    <a href="index6.html" class="active-link">房屋坪數計算器</a>
                     <a href="index7.html">蛋黃蛋白區查詢</a>
+                </div>
             `;
 
-            const sidebarLinks = sidebar.querySelectorAll('a');
             const mainSidebar = document.getElementById('sidebar');
+            const sidebarLinks = sidebar.querySelectorAll('a');
             
             sidebarLinks.forEach(link => {
                 link.addEventListener('click', (event) => {
@@ -312,7 +431,6 @@
 
         function calculateAll() {
             let itemPings = {};
-            const commonItems = items.filter(i => i.id.startsWith('common'));
             
             items.forEach(i => {
                 const ping = calculateItemPing(i.id);
@@ -322,25 +440,14 @@
                 }
             });
 
-            let parkingPing = itemPings.parking || 0;
-            let commonAreaPing = commonItems.reduce((sum, item) => sum + (itemPings[item.id] || 0), 0);
-            
-            // This logic seems complex and might need review, but I'll keep it for now.
-            // It seems to subtract parking from the first common area.
-            let common1Ping = itemPings.common1 || 0;
-            common1Ping -= parkingPing;
-            if(common1Ping < 0) { common1Ping = 0};
-            if(document.getElementById('ping-common1')) {
-                document.getElementById('ping-common1').textContent = roundHalfUp(common1Ping, 2);
-            }
-            // Recalculate total common area ping after adjustment
-            commonAreaPing = (commonItems.reduce((sum, item) => sum + (itemPings[item.id] || 0), 0)) - parkingPing;
-
-
             const indoorPing = (itemPings.main || 0) + (itemPings.balcony || 0) + (itemPings.flower_terrace || 0) + (itemPings.rain_canopy || 0) + (itemPings.platform || 0);
+            const parkingPing = itemPings.parking || 0;
             
+            const commonItems = items.filter(i => i.id.startsWith('common'));
+            const commonAreaPing = commonItems.reduce((sum, item) => sum + (itemPings[item.id] || 0), 0);
+            
+            const totalPing = indoorPing + commonAreaPing + parkingPing;
             const totalPingNoParking = indoorPing + commonAreaPing;
-            const totalPing = totalPingNoParking + parkingPing;
             
             let commonAreaRatio = 0;
             if (totalPingNoParking > 0) {
@@ -354,6 +461,9 @@
             document.getElementById('parking-ping').textContent = roundHalfUp(parkingPing, 2);
             document.getElementById('common-area-ratio').textContent = `${roundHalfUp(commonAreaRatio * 100, 2)}%`;
         }
+                document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
     </script>
 </body>
 </html>
