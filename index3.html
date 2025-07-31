@@ -13,6 +13,9 @@
       background-color: #f9f9f9;
       display: flex;
     }
+    * {
+  white-space: nowrap;
+}
     .main-content {
         /* 移除 margin-left: 250px; 改由 media query 控制 */
         margin-left: 0;
@@ -45,10 +48,16 @@
       margin-bottom: 20px;
     }
     th, td {
-      padding: 10px;
-      text-align: center;
-      border: 1px solid #ddd;
-    }
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+
+  /* 加上這塊，讓第二欄（日期）不會換行 */
+  table th:nth-child(2),
+  table td:nth-child(2) {
+    white-space: nowrap;
+  }
     th {
       background-color: #007BFF;
       color: white;
