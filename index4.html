@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>存款積數計算</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --font-family: 'Noto Sans TC', sans-serif;
+          --primary-color: #007aff;
+          --primary-hover-color: #005ecb;
+          --text-dark: #2c3e50;
+          --text-light: #576b80;
+          --border-color: #dde1e6; 
+          --bg-light: #f8f9fa;
+          --bg-white: #ffffff;
+      }
+      body { 
+          font-family: var(--font-family); margin: 0; background-color: var(--bg-light); 
+          display: flex; color: var(--text-dark);
+      }
+      .sidebar { 
+          width: 250px; background-color: #333; color: white; height: 100vh; position: fixed; 
+          left: 0; top: 0; overflow-y: auto; z-index: 1000; box-sizing: border-box;
+          transform: translateX(-100%); transition: transform 0.3s ease; 
+      }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar-content { padding: 20px; }
+      .sidebar a { color: white; text-decoration: none; display: block; padding: 12px 0; font-size: 18px; }
+      .sidebar a:hover, .sidebar a.active-link { background-color: #575757; }
+      .sidebar h3 { color: white; font-size: 36px; margin: 0 0 10px 0; }
+      
+      .content { 
+          margin-left: 0; 
+          width: 100%; 
+          padding: 40px; 
+          box-sizing: border-box; 
+          transition: margin-left 0.3s ease; 
+          position: relative;
+          z-index: 1;
+      }
+      
+      #hamburger-menu { 
+          display: block; font-size: 28px; background: none; border: none; color: var(--text-dark); 
+          padding: 10px; cursor: pointer; position: fixed; top: 10px; left: 10px; 
+          z-index: 1100;
+      }
+
+      @media (min-width: 993px) {
+          .content { margin-left: 250px; }
+          .sidebar { transform: translateX(0); }
+          #hamburger-menu { display: none; }
+      }
+      /* Page-specific styles */
+      h1 { font-size: 24px; margin-top: 0; margin-bottom: 20px; line-height: 1.5; }
+      .main-container { display: flex; gap: 20px; }
+      table { width: 100%; border-collapse: collapse; background: var(--bg-white); }
+      th, td { border: 1px solid var(--border-color); padding: 12px; text-align: center; }
+      th { background-color: var(--primary-color); color: white; font-weight: 500; }
+      input { width: 95%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; font-size: 1em; }
+      button { padding: 8px 12px; border: none; color: white; cursor: pointer; border-radius: 6px; font-size: 1em; }
+      #addRow { background: var(--primary-color); margin-top: 20px; }
+      .deleteRow { background: #dc3545; }
+      .side-panel { width: 35%; background: var(--bg-light); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
+      
+      @media (max-width: 992px) {
+        /* --- 關鍵修正：增加手機版頂部空間 --- */
+        .content { 
+            padding: 70px 15px 20px 15px; /* 上、左右、下 */
+        }
+        .main-container { flex-direction: column; }
+        .side-panel { width: 100%; margin-top: 20px; }
+        h1 { font-size: 20px; }
+        table, input, button { font-size: 14px; }
+      }
+  </style>
+</head>
+<body>
+  <button id="hamburger-menu">&#9776;</button>
+  <div class="sidebar" id="sidebar"></div>
+  <div class="content">
+      <h1>存款積數計算 純信額度： <br> 三倍平均餘額-非擔保負債(訂約)</h1>
+      <div class="main-container">
+          <div style="width: 100%; overflow-x: auto;">
+              <table id="dataTable">
+                  <thead><tr><th>日期</th><th>最終金額</th><th>存放天數</th><th>存款積數</th><th>操作</th></tr></thead>
+                  <tbody><tr><td><input type="text" class="date" placeholder="YYY/MM/DD"></td><td><input type="number" class="amount" placeholder="輸入金額"></td><td class="stored-days"></td><td class="deposit-total">0</td><td><button class="deleteRow">刪除</button></td></tr></tbody>
+              </table>
+              <button id="addRow">➕ 新增一列</button>
+          </div>
+          <div class="side-panel">
+              <h3>總計</h3>
+              <p>6個月總存款天數: <span id="total-days">0</span></p>
+              <p>績數: <span id="total-score">0</span></p>
+              <p>平均餘額: <span id="average-balance">0</span></p>
+          </div>
+      </div>
+  </div>
+  <script>
+    // --- 禁止滑鼠右鍵選單 ---
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+});
+    document.addEventListener("DOMContentLoaded", function() {
+        setupSidebar();
+        document.getElementById('hamburger-menu').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+        recalc(); // Initial calculation
+    });
+
+    function setupSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.innerHTML = `
+            <div class="sidebar-content">
+                    <h3>選單</h3>
+                    <a href="index1.html">利率計算</a>
+                    <a href="index2.html">通時通數計算器</a>
+                    <a href="index3.html">結清金額試算</a>
+                    <a href="index4.html">存款積數</a>
+                    <a href="index5.html">請款表單</a>
+                    <a href="index6.html">房屋坪數計算器</a>
+                    <a href="index7.html">蛋黃蛋白區查詢</a>
+            </div>
+        `;
+        const sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                if (sidebar.classList.contains('active')) {
+                    event.preventDefault();
+                    const destination = link.href;
+                    sidebar.classList.remove('active');
+                    setTimeout(() => { window.location.href = destination; }, 300);
+                }
+            });
+        });
+    }
+
+    // --- 以下是您頁面原有的 JavaScript 計算功能，保持不變 ---
+    function convertToGregorian(twDate) {
+      let match = twDate.match(/^(\d{2,3})\/(\d{1,2})\/(\d{1,2})$/);
+      if (!match) return "";
+      let [_, year, month, day] = match;
+      return `${parseInt(year, 10) + 1911}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+    function computeStoredDays(currentDateStr, nextDateStr) {
+      if (!nextDateStr) return "";
+      let currDate = new Date(convertToGregorian(currentDateStr));
+      let nextDate = new Date(convertToGregorian(nextDateStr));
+      if (isNaN(currDate) || isNaN(nextDate)) return "";
+      let diffDays = Math.ceil((nextDate - currDate) / (1000 * 60 * 60 * 24));
+      return diffDays > 0 ? diffDays : 0;
+    }
+    function formatNumber(n) { return Number(n).toLocaleString(); }
+    function recalc() {
+      let rows = document.querySelectorAll("#dataTable tbody tr");
+      let totalDays = 0, totalScore = 0;
+      rows.forEach((row, index) => {
+        let dateValue = row.querySelector(".date").value.trim();
+        let amountVal = parseFloat(row.querySelector(".amount").value) || 0;
+        let storedDays = "";
+        let nextRowDate = index < rows.length - 1 ? rows[index + 1].querySelector(".date").value.trim() : "";
+        if (dateValue && nextRowDate) { storedDays = computeStoredDays(dateValue, nextRowDate); }
+        let depositScore = storedDays !== "" ? amountVal * storedDays : 0;
+        row.querySelector(".stored-days").textContent = storedDays !== "" ? formatNumber(storedDays) : "";
+        row.querySelector(".deposit-total").textContent = formatNumber(depositScore);
+        if (index < rows.length - 1 && storedDays !== "" && storedDays > 0) {
+          totalDays += storedDays;
+          totalScore += depositScore;
+        }
+      });
+      document.getElementById("total-days").textContent = formatNumber(totalDays);
+      document.getElementById("total-score").textContent = formatNumber(totalScore);
+      document.getElementById("average-balance").textContent = formatNumber(totalDays > 0 ? Math.round(totalScore / totalDays) : 0);
+    }
+    document.querySelector("#dataTable tbody").addEventListener("input", function(event) {
+      if (event.target.classList.contains("date") || event.target.classList.contains("amount")) { recalc(); }
+    });
+    document.getElementById("addRow").addEventListener("click", function() {
+      let newRow = document.querySelector("#dataTable tbody").insertRow();
+      newRow.innerHTML = `<td><input type="text" class="date" placeholder="YYY/MM/DD"></td><td><input type="number" class="amount" placeholder="輸入金額"></td><td class="stored-days"></td><td class="deposit-total">0</td><td><button class="deleteRow">刪除</button></td>`;
+      recalc();
+    });
+    document.querySelector("#dataTable tbody").addEventListener("click", function(event) {
+      if (event.target.classList.contains("deleteRow")) {
+        event.target.closest("tr").remove();
+        recalc();
+      }
+    });
+  </script>
+</body>
+</html>
