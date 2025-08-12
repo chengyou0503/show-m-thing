@@ -23,6 +23,7 @@
             --danger-color: #e74c3c;
             --card-shadow: 0 8px 25px rgba(44, 62, 80, 0.08);
             --input-shadow-focus: 0 0 0 3px rgba(0, 122, 255, 0.15);
+            --parking-group-bg: #f7faff; /* 車位群組背景色 */
         }
     
         body { 
@@ -104,18 +105,66 @@
         .calc-table tbody tr { transition: background-color 0.2s; }
         .calc-table tbody tr:not(.add-row) { border-bottom: 1px solid var(--border-color); }
         .calc-table tbody tr:last-child { border-bottom: none; }
-        .calc-table tbody tr:hover:not(.add-row) { background-color: var(--bg-light); }
+        .calc-table tbody tr:hover:not(.add-row):not(.parking-group-top):not(.parking-group-bottom) { background-color: var(--bg-light); }
         .calc-table .item-label { font-weight: 500; text-align: left; }
-        .calc-table input[type="number"] { width: 100%; min-width: 80px; padding: 10px; border: 1px solid var(--border-color); background-color: var(--bg-white); border-radius: 8px; text-align: center; font-family: inherit; font-size: 15px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .calc-table input[type="number"] { width: 100%; min-width: 80px; padding: 10px; border: 1px solid var(--border-color); background-color: var(--bg-white); border-radius: 8px; text-align: center; font-family: inherit; font-size: 15px; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s; }
         .calc-table input[type="number"]:focus { border-color: var(--primary-color); box-shadow: var(--input-shadow-focus); outline: none; }
         input[type=number]::-webkit-outer-spin-button,
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        .calc-table .ping-result { font-weight: 700; color: var(--primary-color); font-size: 16px; }
+        .calc-table .ping-result { font-weight: 700; color: var(--primary-color); font-size: 16px; transition: color 0.2s; }
         .add-btn { background-color: var(--primary-color); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 22px; font-weight: 500; cursor: pointer; line-height: 32px; text-align: center; margin-right: 12px; transition: all 0.2s ease; }
         .add-btn:hover { background-color: var(--primary-hover-color); transform: scale(1.1) rotate(90deg); }
         .add-row td { padding-top: 20px !important; color: var(--text-light); font-weight: 500; }
     
+        /* --- 美化：車位群組樣式 --- */
+        .calc-table tr.parking-group-top td,
+        .calc-table tr.parking-group-bottom td {
+            background-color: var(--parking-group-bg);
+        }
+        .calc-table tr.parking-group-top {
+            border-bottom: none; /* 移除群組內部的分隔線 */
+        }
+        .calc-table tr.parking-group-top td {
+            border-top: 1px solid var(--border-color);
+        }
+        .calc-table tr.parking-group-bottom td {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .calc-table tr.parking-group-top td:first-child,
+        .calc-table tr.parking-group-bottom td:first-child {
+            border-left: 3px solid var(--primary-color);
+        }
+        .calc-table tr.parking-group-top td:last-child,
+        .calc-table tr.parking-group-bottom td:last-child {
+            border-right: 1px solid var(--border-color);
+        }
+        .calc-table tr.parking-group-top td:first-child { border-top-left-radius: 8px; }
+        .calc-table tr.parking-group-top td:last-child { border-top-right-radius: 8px; }
+        .calc-table tr.parking-group-bottom td:first-child { border-bottom-left-radius: 8px; }
+        .calc-table tr.parking-group-bottom td:last-child { border-bottom-right-radius: 8px; }
+        
+        /* --- 新增：無效行的樣式 --- */
+        .calc-table tr.row-disabled {
+            background-color: #f8f9fa !important; /* 使用淺灰色背景 */
+            color: #adb5bd; /* 淺灰色文字 */
+        }
+        .calc-table tr.row-disabled .item-label {
+            color: #adb5bd;
+        }
+        .calc-table tr.row-disabled .ping-result {
+            color: #adb5bd !important;
+        }
+        .calc-table tr.row-disabled input[type="number"] {
+            background-color: #e9ecef;
+            color: #adb5bd;
+            pointer-events: none; /* 讓輸入框無法點擊 */
+        }
+        .calc-table tr.row-disabled td:first-child {
+            border-left-color: #dde1e6; /* 讓左側的線也變灰 */
+        }
+        /* --- 樣式結束 --- */
+
         .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; width: 100%; }
         .summary-item { display: flex; flex-direction: column; background-color: var(--bg-light); padding: 20px; border-radius: 12px; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color); }
         .summary-item:hover { transform: translateY(-5px); box-shadow: var(--card-shadow); }
@@ -166,6 +215,30 @@
                 margin-bottom: 20px;
                 padding: 10px;
             }
+            /* RWD下，讓群組樣式與卡片樣式和諧 */
+            .calc-table tr.parking-group-top,
+            .calc-table tr.parking-group-bottom {
+                background-color: transparent; /* RWD下移除特殊背景色 */
+                border: 1px solid var(--border-color); /* 維持外框 */
+            }
+            .calc-table tr.parking-group-top {
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+                margin-bottom: 0;
+                border-bottom: none;
+            }
+            .calc-table tr.parking-group-bottom {
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
+            .calc-table tr.parking-group-top td:first-child,
+            .calc-table tr.parking-group-bottom td:first-child,
+            .calc-table tr.parking-group-top td:last-child,
+            .calc-table tr.parking-group-bottom td:last-child {
+                border: none;
+                border-radius: 0;
+            }
+
 
             .calc-table td {
                 display: block; /* 讓儲存格垂直堆疊 */
@@ -256,7 +329,7 @@
                     <span class="summary-value" id="total-ping">0.00</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">權狀坪數 (無車位)</span>
+                    <span class="summary-label">主建物+附屬建物+公設</span>
                     <span class="summary-value" id="total-ping-no-parking">0.00</span>
                 </div>
                 <div class="summary-item">
@@ -289,7 +362,7 @@
             { id: 'rain_canopy', item: '', desc: '雨遮', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'platform', item: '', desc: '平台', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'parking', item: '車位部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
-            { id: 'common1', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
+            { id: 'common1', item: '共有部分-車位', desc: '', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'common2', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'common3', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 },
             { id: 'common4', item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 }
@@ -313,10 +386,16 @@
             document.getElementById('add-common-btn').addEventListener('click', addCommonRow);
         }
 
-        // 【RWD 優化】已更新此函式，為 <td> 加上 data-label 屬性
+        // 【修改】已更新此函式，為 <td> 加上 data-label 屬性，並為車位群組加上 class
         function createRowHtml(i) {
+            let rowClass = '';
+            if (i.id === 'parking') {
+                rowClass = 'class="parking-group-top"';
+            } else if (i.id === 'common1') {
+                rowClass = 'class="parking-group-bottom"';
+            }
             return `
-                <tr>
+                <tr ${rowClass}>
                     <td data-label="項目" class="item-label">${i.item}</td>
                     <td data-label="說明">${i.desc}</td>
                     <td data-label="面積 (m²)"><input type="number" id="area-${i.id}" value="${roundHalfUp(i.area, 2)}" oninput="calculateAll()" onfocus="this.select()"></td>
@@ -336,20 +415,15 @@
                 </tr>`;
         }
 
-function addCommonRow() {
+        function addCommonRow() {
             commonCounter++;
             const newId = 'common' + commonCounter;
             const newItem = { id: newId, item: '共有部分', desc: '', area: 0.00, num: 1.00, den: 1.00 };
             items.push(newItem);
             const tableBody = document.getElementById('calc-table-body');
             const addButtonRow = tableBody.querySelector('.add-row');
-
-            // 修正：使用 insertAdjacentHTML 將 createRowHtml 產生的完整 <tr> 字串
-            // 插入到「新增按鈕列」(.add-row) 的前面。
-            // 這樣可以確保整列都被正確新增。
             addButtonRow.insertAdjacentHTML('beforebegin', createRowHtml(newItem));
             
-            // 重新綁定事件監聽器，確保新產生的輸入框也能觸發計算
             const newRowInputs = document.querySelectorAll(`#area-${newId}, #num-${newId}, #den-${newId}`);
             newRowInputs.forEach(input => {
                 input.addEventListener('input', calculateAll);
@@ -397,7 +471,10 @@ function addCommonRow() {
         }
 
         function calculateItemPing(id) {
-            const area = parseFloat(document.getElementById(`area-${id}`).value) || 0;
+            const areaInput = document.getElementById(`area-${id}`);
+            if (!areaInput) return 0; // 如果找不到元素，返回0
+
+            const area = parseFloat(areaInput.value) || 0;
             const num = parseFloat(document.getElementById(`num-${id}`).value) || 1;
             const den = parseFloat(document.getElementById(`den-${id}`).value) || 1;
             if (den === 0) return 0;
@@ -405,36 +482,63 @@ function addCommonRow() {
             return ping;
         }
 
+        // 【修改】已更新此函式，加入無效化邏輯
         function calculateAll() {
             let itemPings = {};
-            
             items.forEach(i => {
-                const ping = calculateItemPing(i.id);
-                itemPings[i.id] = ping;
-                if (document.getElementById(`ping-${i.id}`)) {
-                    document.getElementById(`ping-${i.id}`).textContent = roundHalfUp(ping, 2);
+                itemPings[i.id] = calculateItemPing(i.id);
+            });
+
+            const parkingPingForTotal = itemPings.parking || 0;
+            const common1Row = document.getElementById('ping-common1')?.closest('tr');
+            let grossCommon1Ping = itemPings.common1 || 0;
+
+            // 控制 "共有部分-車位" 行的狀態
+            if (common1Row) {
+                const common1Inputs = common1Row.querySelectorAll('input[type="number"]');
+                if (parkingPingForTotal > 0) {
+                    // 啟用
+                    common1Row.classList.remove('row-disabled');
+                    common1Inputs.forEach(input => input.disabled = false);
+                    const netCommon1Ping = grossCommon1Ping - parkingPingForTotal;
+                    document.getElementById('ping-common1').textContent = roundHalfUp(Math.max(0, netCommon1Ping), 2);
+                } else {
+                    // 禁用
+                    common1Row.classList.add('row-disabled');
+                    common1Inputs.forEach(input => input.disabled = true);
+                    itemPings.common1 = 0; // 禁用時，其計算貢獻歸零
+                    document.getElementById('ping-common1').textContent = '0.00';
+                }
+            }
+            
+            // 更新所有其他坪數的顯示
+            items.forEach(i => {
+                if (i.id !== 'common1' && document.getElementById(`ping-${i.id}`)) {
+                    document.getElementById(`ping-${i.id}`).textContent = roundHalfUp(itemPings[i.id] || 0, 2);
                 }
             });
 
+            // --- 總計邏輯 ---
             const indoorPing = (itemPings.main || 0) + (itemPings.balcony || 0) + (itemPings.flower_terrace || 0) + (itemPings.rain_canopy || 0) + (itemPings.platform || 0);
-            const parkingPing = itemPings.parking || 0;
             
             const commonItems = items.filter(i => i.id.startsWith('common'));
-            const commonAreaPing = commonItems.reduce((sum, item) => sum + (itemPings[item.id] || 0), 0);
+            const grossCommonAreaPing = commonItems.reduce((sum, item) => sum + (itemPings[item.id] || 0), 0);
             
-            const totalPing = indoorPing + commonAreaPing + parkingPing;
-            const totalPingNoParking = indoorPing + commonAreaPing;
+            const netCommonAreaPing = grossCommonAreaPing - parkingPingForTotal;
+            const totalPing = indoorPing + grossCommonAreaPing;
+            const totalPingNoParking = totalPing - parkingPingForTotal;
             
             let commonAreaRatio = 0;
             if (totalPingNoParking > 0) {
-                commonAreaRatio = commonAreaPing / totalPingNoParking;
+                commonAreaRatio = netCommonAreaPing / totalPingNoParking;
             }
 
+            // 更新總結面板
             document.getElementById('total-ping').textContent = roundHalfUp(totalPing, 2);
             document.getElementById('total-ping-no-parking').textContent = roundHalfUp(totalPingNoParking, 2);
             document.getElementById('indoor-ping').textContent = roundHalfUp(indoorPing, 2);
-            document.getElementById('common-area-ping').textContent = roundHalfUp(commonAreaPing, 2);
-            document.getElementById('parking-ping').textContent = roundHalfUp(parkingPing, 2);
+            document.getElementById('common-area-ping').textContent = roundHalfUp(Math.max(0, netCommonAreaPing), 2);
+            document.getElementById('parking-ping').textContent = roundHalfUp(parkingPingForTotal, 2);
             document.getElementById('common-area-ratio').textContent = `${roundHalfUp(commonAreaRatio * 100, 2)}%`;
         }
                 document.addEventListener('contextmenu', function(event) {
