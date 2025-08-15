@@ -173,15 +173,14 @@
         #total-ping, #total-ping-no-parking { color: var(--primary-color); } 
         #common-area-ratio { color: var(--danger-color); }
 
-        /* --- 新增：貸款金額計算器 --- */
+        /* --- 修改：貸款金額計算器 --- */
         .loan-calculator {
-            position: absolute;
-            top: 48px;
-            right: 40px;
             display: flex;
+            justify-content: flex-end;
             align-items: center;
             gap: 10px;
             font-size: 15px;
+            margin-bottom: 15px;
         }
         .loan-calculator label {
             color: var(--text-dark);
@@ -227,9 +226,8 @@
             .content { padding: 20px 10px; }
             #calculator-wrapper { padding: 20px 0; box-shadow: none; border: none; border-radius: 0; }
             
-            /* --- 新增：貸款計算器RWD --- */
+            /* --- 修改：貸款計算器RWD --- */
             .loan-calculator {
-                position: static;
                 justify-content: center;
                 margin: 0 20px 20px;
                 padding: 10px;
@@ -602,7 +600,10 @@
         function calculateLoan() {
             const loanAmount = parseFloat(document.getElementById('loan-amount').value) || 0;
             const result = loanAmount / 1.2;
-            document.getElementById('loan-result').textContent = roundHalfUp(result, 2);
+            document.getElementById('loan-result').textContent = result.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         document.addEventListener('contextmenu', function(event) {

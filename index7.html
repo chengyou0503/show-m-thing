@@ -117,18 +117,33 @@
         .search-container { 
             display: flex; 
             flex-direction: column; 
-            gap: 10px; 
+            align-items: center;
+            gap: 15px; 
             margin-bottom: 30px; 
         }
-        .address-input { 
-            flex-grow: 1; 
-            padding: 15px; 
-            border: 1px solid var(--border-color); 
-            background-color: var(--bg-white); 
-            border-radius: 8px; 
-            font-family: inherit; 
-            font-size: 16px; 
-            transition: border-color 0.2s, box-shadow 0.2s; 
+        .address-input {
+            width: 100%;
+            max-width: 450px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-white);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23576b80' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+            padding-right: 40px;
+        }
+        /* Hide the default dropdown arrow in WebKit browsers */
+        .address-input::-webkit-calendar-picker-indicator {
+            display: none;
+            -webkit-appearance: none;
         }
         .address-input:focus { 
             border-color: var(--primary-color); 
@@ -230,6 +245,10 @@
             }
             .search-container {
                 flex-direction: row;
+                justify-content: center;
+            }
+            .address-input {
+                width: 250px;
             }
             #search-btn {
                 padding: 0 30px;
@@ -275,10 +294,11 @@
         <div id="calculator-wrapper">
             <h1>台灣房市蛋黃蛋白區查詢</h1>
             <p>輸入您想查詢的地址，系統將根據資料庫分析該地區的分級。</p>
-            <div class="search-container" style="flex-direction: column; align-items: stretch;">
-                <select id="city-select" class="address-input" style="margin-bottom: 10px; padding: 15px;"></select>
-                <select id="district-select" class="address-input" style="padding: 15px;"></select>
-                
+            <div class="search-container">
+                <input id="city-input" class="address-input" list="city-list" placeholder="請選擇或輸入縣市">
+                <datalist id="city-list"></datalist>
+                <input id="district-input" class="address-input" list="district-list" placeholder="請先選擇有效的縣市">
+                <datalist id="district-list"></datalist>
             </div>
             <div id="result-display"></div>
         </div>
@@ -307,7 +327,7 @@
                     <a href="index4.html">存款積數</a>
                     <a href="index5.html">請款表單</a>
                     <a href="index6.html">房屋坪數計算器</a>
-                    <a href="index7.html">蛋黃蛋白區查詢</a>
+                    <a href="index7.html" class="active-link">蛋黃蛋白區查詢</a>
                 </div>
             `;
             const sidebarLinks = sidebar.querySelectorAll('a');
@@ -356,43 +376,24 @@
                 'D': { type: '蛋殼區', rank: 'D級', description: '市郊以外的區域，多為觀光、農業或自然保育區，享受悠閒的生活步調與自然景觀。' }
             };
 
-            const citySelect = document.getElementById('city-select');
-            const districtSelect = document.getElementById('district-select');
+            const cityInput = document.getElementById('city-input');
+            const cityList = document.getElementById('city-list');
+            const districtInput = document.getElementById('district-input');
+            const districtList = document.getElementById('district-list');
             const resultDisplay = document.getElementById('result-display');
 
-            // Populate city dropdown
-            citySelect.innerHTML = '<option value="">請選擇縣市</option>';
+            // Populate city datalist
             for (const city in cityData) {
                 const option = document.createElement('option');
                 option.value = city;
-                option.textContent = city;
-                citySelect.appendChild(option);
+                cityList.appendChild(option);
             }
 
-            // Populate district dropdown based on city selection
-            citySelect.addEventListener('change', () => {
-                const selectedCity = citySelect.value;
-                districtSelect.innerHTML = '<option value="">請選擇鄉鎮市區</option>';
-                resultDisplay.className = '';
-                if (selectedCity && cityData[selectedCity]) {
-                    districtSelect.disabled = false;
-                    for (const district in cityData[selectedCity]) {
-                        const option = document.createElement('option');
-                        option.value = district;
-                        option.textContent = district;
-                        districtSelect.appendChild(option);
-                    }
-                } else {
-                    districtSelect.disabled = true;
-                }
-                 performSearch(); // Reset search on city change
-            });
-
             const performSearch = () => {
-                const selectedCity = citySelect.value;
-                const selectedDistrict = districtSelect.value;
+                const selectedCity = cityInput.value;
+                const selectedDistrict = districtInput.value;
 
-                if (!selectedCity || !selectedDistrict || selectedDistrict === "") {
+                if (!selectedCity || !selectedDistrict || !cityData[selectedCity] || !cityData[selectedCity][selectedDistrict]) {
                     resultDisplay.className = '';
                     resultDisplay.innerHTML = '';
                     return;
@@ -411,8 +412,29 @@
                 }
             };
 
-            districtSelect.addEventListener('change', performSearch);
-            districtSelect.disabled = true; // Initially disable district select
+            // Handle city input changes
+            cityInput.addEventListener('input', () => {
+                const selectedCity = cityInput.value;
+                districtInput.value = '';
+                districtList.innerHTML = '';
+                performSearch();
+
+                if (cityData[selectedCity]) {
+                    districtInput.disabled = false;
+                    districtInput.placeholder = "請選擇或輸入鄉鎮市區";
+                    for (const district in cityData[selectedCity]) {
+                        const option = document.createElement('option');
+                        option.value = district;
+                        districtList.appendChild(option);
+                    }
+                } else {
+                    districtInput.disabled = true;
+                    districtInput.placeholder = "請先選擇有效的縣市";
+                }
+            });
+
+            districtInput.addEventListener('input', performSearch);
+            districtInput.disabled = true;
         }
     </script>
 </body>
