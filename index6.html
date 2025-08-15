@@ -89,7 +89,7 @@
     
         .content { margin-left: 0; width: 100%; padding: 50px; box-sizing: border-box; transition: margin-left 0.3s ease; display: flex; flex-direction: column; align-items: center; }
         
-        #calculator-wrapper { width: 100%; max-width: 900px; background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
+        #calculator-wrapper { position: relative; width: 100%; max-width: 900px; background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
         #calculator-wrapper h1 { text-align: center; color: var(--text-dark); margin-top: 0; font-size: 32px; margin-bottom: 30px; font-weight: 700; }
         
         .calc-table-container {
@@ -172,6 +172,44 @@
         .summary-value { font-weight: 700; color: var(--text-dark); font-size: 24px; }
         #total-ping, #total-ping-no-parking { color: var(--primary-color); } 
         #common-area-ratio { color: var(--danger-color); }
+
+        /* --- 新增：貸款金額計算器 --- */
+        .loan-calculator {
+            position: absolute;
+            top: 48px;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+        .loan-calculator label {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        .loan-calculator input[type="number"] {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            background-color: var(--bg-white);
+        }
+        .loan-calculator input[type="number"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: var(--input-shadow-focus);
+            outline: none;
+        }
+        .loan-calculator span {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* --- 新增：共有部分-車位 坪數紅色字體 --- */
+        #ping-common1 {
+            color: var(--danger-color) !important;
+        }
         
         @media (min-width: 993px) {
             .content {
@@ -188,6 +226,19 @@
         @media (max-width: 992px) {
             .content { padding: 20px 10px; }
             #calculator-wrapper { padding: 20px 0; box-shadow: none; border: none; border-radius: 0; }
+            
+            /* --- 新增：貸款計算器RWD --- */
+            .loan-calculator {
+                position: static;
+                justify-content: center;
+                margin: 0 20px 20px;
+                padding: 10px;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                background-color: var(--bg-light);
+                flex-wrap: wrap;
+            }
+
             #calculator-wrapper h1 { font-size: 24px; margin-bottom: 20px; padding: 0 20px; }
             .summary-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 25px; padding: 0 20px; }
             .summary-item { flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; border-radius: 10px;}
@@ -307,6 +358,12 @@
     </div>
     <div class="content">
         <div id="calculator-wrapper">
+            <div class="loan-calculator">
+                <label for="loan-amount">貸款金額</label>
+                <input type="number" id="loan-amount" oninput="calculateLoan()" onfocus="this.select()" placeholder="輸入金額">
+                <span>÷ 1.2 =</span>
+                <span id="loan-result" style="font-size: 18px; font-weight: 700; color: var(--primary-color);">0.00</span>
+            </div>
             <h1>房屋坪數精算</h1>
             <div class="calc-table-container">
                 <table class="calc-table" id="main-table">
@@ -541,7 +598,14 @@
             document.getElementById('parking-ping').textContent = roundHalfUp(parkingPingForTotal, 2);
             document.getElementById('common-area-ratio').textContent = `${roundHalfUp(commonAreaRatio * 100, 2)}%`;
         }
-                document.addEventListener('contextmenu', function(event) {
+
+        function calculateLoan() {
+            const loanAmount = parseFloat(document.getElementById('loan-amount').value) || 0;
+            const result = loanAmount / 1.2;
+            document.getElementById('loan-result').textContent = roundHalfUp(result, 2);
+        }
+
+        document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
     </script>
